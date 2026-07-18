@@ -8,7 +8,7 @@ import { useAuth } from "@/store/authStore";
 import { useToast } from "@/store/Toast";
 import { motion } from "framer-motion";
 
-const strengthColors = { weak: "bg-red-500", medium: "bg-amber-500", strong: "bg-emerald-500" };
+const strengthColors = { weak: "bg-danger-subtle0", medium: "bg-amber-500", strong: "bg-emerald-500" };
 const strengthLabels = { weak: "Weak", medium: "Medium", strong: "Strong" };
 
 const getStrength = (pw) => {
@@ -89,53 +89,53 @@ const Register = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
-          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-600 to-amber-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20"
+          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D2691E] to-[#E8A04F] flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#D2691E]/20"
         >
           <UserPlus className="h-6 w-6 text-white" />
         </motion.div>
-        <h1 className="text-2xl font-bold text-stone-900">Create Account</h1>
-        <p className="text-sm text-stone-500 mt-1">Join us to start ordering your favourites</p>
+        <h1 className="text-2xl font-bold text-foreground">Create Account</h1>
+        <p className="text-sm text-muted-foreground mt-1">Join us to start ordering your favourites</p>
       </div>
 
       {apiError && (
-        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl px-4 py-3 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />{apiError}
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-danger-subtle border border-danger/30 text-danger text-sm rounded-2xl px-4 py-3 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-danger-subtle0 shrink-0" />{apiError}
         </motion.div>
       )}
 
       <div className="space-y-1.5">
         <Label htmlFor="name">Full Name</Label>
         <div className="relative">
-          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
-          <Input id="name" value={form.name} onChange={set("name")} placeholder="John Doe" className={`pl-10 ${errors.name ? "border-red-400" : ""}`} />
+          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 pointer-events-none" />
+          <Input id="name" value={form.name} onChange={set("name")} placeholder="John Doe" className={`pl-10 ${errors.name ? "border-danger/50" : ""}`} />
         </div>
-        {errors.name && <p className="text-xs text-red-500 font-medium">{errors.name}</p>}
+        {errors.name && <p className="text-xs text-danger font-medium">{errors.name}</p>}
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
         <div className="relative">
-          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
-          <Input id="email" type="email" value={form.email} onChange={set("email")} placeholder="john@example.com" className={`pl-10 ${errors.email ? "border-red-400" : ""}`} />
+          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 pointer-events-none" />
+          <Input id="email" type="email" value={form.email} onChange={set("email")} placeholder="john@example.com" className={`pl-10 ${errors.email ? "border-danger/50" : ""}`} />
         </div>
-        {errors.email && <p className="text-xs text-red-500 font-medium">{errors.email}</p>}
+        {errors.email && <p className="text-xs text-danger font-medium">{errors.email}</p>}
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="password">Password</Label>
         <div className="relative">
-          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
-          <Input id="password" type={showPassword ? "text" : "password"} value={form.password} onChange={set("password")} placeholder="••••••••" className={`pl-10 pr-11 ${errors.password ? "border-red-400" : ""}`} />
-          <button type="button" onClick={() => setShowPassword((p) => !p)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors" tabIndex={-1}>
+          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 pointer-events-none" />
+          <Input id="password" type={showPassword ? "text" : "password"} value={form.password} onChange={set("password")} placeholder="••••••••" className={`pl-10 pr-11 ${errors.password ? "border-danger/50" : ""}`} />
+          <button type="button" onClick={() => setShowPassword((p) => !p)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-muted-foreground transition-colors" tabIndex={-1}>
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>
-        {errors.password && <p className="text-xs text-red-500 font-medium">{errors.password}</p>}
+        {errors.password && <p className="text-xs text-danger font-medium">{errors.password}</p>}
         {form.password && (
           <div className="space-y-1.5 mt-2">
             <div className="flex items-center gap-2">
-              <div className={`h-1.5 flex-1 rounded-full ${strengthColors[strength] || "bg-stone-200"}`} />
-              <span className="text-[10px] font-semibold text-stone-500 capitalize">{strengthLabels[strength]}</span>
+              <div className={`h-1.5 flex-1 rounded-full ${strengthColors[strength] || "bg-muted"}`} />
+              <span className="text-[10px] font-semibold text-muted-foreground capitalize">{strengthLabels[strength]}</span>
             </div>
             <div className="space-y-1">
               {requirements.map((req) => (
@@ -143,9 +143,9 @@ const Register = () => {
                   {req.met ? (
                     <Check className="h-3 w-3 text-emerald-500" />
                   ) : (
-                    <X className="h-3 w-3 text-stone-300" />
+                    <X className="h-3 w-3 text-muted-foreground/50" />
                   )}
-                  <span className={req.met ? "text-stone-600" : "text-stone-400"}>{req.label}</span>
+                  <span className={req.met ? "text-muted-foreground" : "text-muted-foreground/70"}>{req.label}</span>
                 </div>
               ))}
             </div>
@@ -156,13 +156,13 @@ const Register = () => {
       <div className="space-y-1.5">
         <Label htmlFor="confirmPassword">Confirm Password</Label>
         <div className="relative">
-          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
-          <Input id="confirmPassword" type={showConfirm ? "text" : "password"} value={form.confirmPassword} onChange={set("confirmPassword")} placeholder="••••••••" className={`pl-10 pr-11 ${errors.confirmPassword ? "border-red-400" : ""}`} />
-          <button type="button" onClick={() => setShowConfirm((p) => !p)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors" tabIndex={-1}>
+          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 pointer-events-none" />
+          <Input id="confirmPassword" type={showConfirm ? "text" : "password"} value={form.confirmPassword} onChange={set("confirmPassword")} placeholder="••••••••" className={`pl-10 pr-11 ${errors.confirmPassword ? "border-danger/50" : ""}`} />
+          <button type="button" onClick={() => setShowConfirm((p) => !p)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-muted-foreground transition-colors" tabIndex={-1}>
             {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>
-        {errors.confirmPassword && <p className="text-xs text-red-500 font-medium">{errors.confirmPassword}</p>}
+        {errors.confirmPassword && <p className="text-xs text-danger font-medium">{errors.confirmPassword}</p>}
       </div>
 
       <Button type="submit" disabled={loading} variant="premium" size="lg" className="w-full">
@@ -171,13 +171,13 @@ const Register = () => {
         ) : "Create Account"}
       </Button>
 
-      <p className="text-sm text-center text-stone-500">
+      <p className="text-sm text-center text-muted-foreground">
         Already have an account?{" "}
-        <Link to={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"} className="text-orange-600 hover:text-orange-700 font-semibold transition-colors">Sign in</Link>
+        <Link to={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"} className="text-[#D2691E] hover:text-[#A0522D] font-semibold transition-colors">Sign in</Link>
       </p>
 
       <div className="text-center">
-        <Link to="/" className="inline-flex items-center gap-1 text-xs text-stone-400 hover:text-stone-600 transition-colors">
+        <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors">
           <ArrowLeft className="h-3 w-3" /> Back to home
         </Link>
       </div>

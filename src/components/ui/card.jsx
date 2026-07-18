@@ -1,7 +1,13 @@
 import { cn } from "@/lib/utils";
 
 const Card = ({ className, ...props }) => (
-  <div className={cn("bg-white border border-stone-200/80 rounded-2xl shadow-soft", className)} {...props} />
+  <div
+    className={cn(
+      "bg-card text-card-foreground border border-border/70 rounded-2xl shadow-soft",
+      className
+    )}
+    {...props}
+  />
 );
 
 const CardHeader = ({ className, ...props }) => (
@@ -9,11 +15,11 @@ const CardHeader = ({ className, ...props }) => (
 );
 
 const CardTitle = ({ className, ...props }) => (
-  <h3 className={cn("text-lg font-bold text-stone-900 leading-tight", className)} {...props} />
+  <h3 className={cn("text-lg font-bold text-foreground leading-tight", className)} {...props} />
 );
 
 const CardDescription = ({ className, ...props }) => (
-  <p className={cn("text-sm text-stone-500", className)} {...props} />
+  <p className={cn("text-sm text-muted-foreground", className)} {...props} />
 );
 
 const CardContent = ({ className, ...props }) => (

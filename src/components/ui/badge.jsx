@@ -2,18 +2,19 @@ import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
+  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
   {
     variants: {
       variant: {
-        default: "bg-stone-900 text-white",
-        secondary: "bg-stone-100 text-stone-700",
-        outline: "border-2 border-stone-200 text-stone-600",
-        premium: "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-sm",
-        success: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-        warning: "bg-amber-50 text-amber-700 border border-amber-200",
-        danger: "bg-red-50 text-red-700 border border-red-200",
-        info: "bg-sky-50 text-sky-700 border border-sky-200",
+        default: "bg-foreground text-background",
+        secondary: "bg-muted text-foreground",
+        outline: "border-2 border-border text-muted-foreground",
+        premium: "bg-gradient-to-r from-[#D2691E] to-[#E8A04F] text-white shadow-sm",
+        silk: "bg-gradient-to-r from-[#9E2B5E] to-[#E58FB0] text-white shadow-sm",
+        success: "bg-success-subtle text-success",
+        warning: "bg-warning-subtle text-warning",
+        danger: "bg-danger-subtle text-danger",
+        info: "bg-info-subtle text-info",
       },
     },
     defaultVariants: { variant: "default" },

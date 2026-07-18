@@ -17,6 +17,7 @@ const VerifyOTP = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetToken, setResetToken] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const inputs = useRef([]);
@@ -40,7 +41,8 @@ const VerifyOTP = () => {
     setError("");
     setLoading(true);
     try {
-      await authApi.verifyOTP(email, code);
+      const res = await authApi.verifyOTP(email, code);
+      setResetToken(res.data?.data?.resetToken || "");
       setStep("reset");
       showToast({ title: "OTP Verified", description: "Now set your new password" });
     } catch (err) {
@@ -57,7 +59,7 @@ const VerifyOTP = () => {
     setError("");
     setLoading(true);
     try {
-      await authApi.resetPassword(email, otp.join(""), newPassword);
+      await authApi.resetPassword(resetToken, newPassword);
       showToast({ title: "Password Reset", description: "Login with your new password" });
       navigate("/login");
     } catch (err) {
@@ -70,7 +72,7 @@ const VerifyOTP = () => {
   if (!email) {
     return (
       <div className="text-center py-8">
-        <p className="text-stone-500 mb-4">No email provided. Please start again.</p>
+        <p className="text-muted-foreground mb-4">No email provided. Please start again.</p>
         <Button asChild><Link to="/forgot-password">Forgot Password</Link></Button>
       </div>
     );
@@ -93,18 +95,18 @@ const VerifyOTP = () => {
             >
               <ShieldCheck className="h-6 w-6 text-white" />
             </motion.div>
-            <h1 className="text-2xl font-bold text-stone-900">Verify OTP</h1>
-            <p className="text-sm text-stone-500 mt-1">Enter the 6-digit code sent to {email}</p>
+            <h1 className="text-2xl font-bold text-foreground">Verify OTP</h1>
+            <p className="text-sm text-muted-foreground mt-1">Enter the 6-digit code sent to {email}</p>
           </div>
 
           {error && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-danger-subtle border border-danger/30 text-danger text-sm rounded-xl px-4 py-3">
               {error}
             </motion.div>
           )}
 
           <div className="space-y-2">
-            <Label className="text-sm font-semibold text-stone-700 block text-center">OTP Code</Label>
+            <Label className="text-sm font-semibold text-foreground block text-center">OTP Code</Label>
             <div className="flex justify-center gap-2">
               {otp.map((d, i) => (
                 <input
@@ -115,7 +117,7 @@ const VerifyOTP = () => {
                   value={d}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
-                  className="w-11 h-12 text-center text-lg font-bold rounded-xl border-2 border-stone-200 bg-white focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-all"
+                  className="w-11 h-12 text-center text-lg font-bold rounded-xl border-2 border-border bg-card focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none transition-all"
                   autoFocus={i === 0}
                 />
               ))}
@@ -127,7 +129,7 @@ const VerifyOTP = () => {
           </Button>
 
           <div className="text-center">
-            <Link to="/forgot-password" className="text-xs font-medium text-orange-600 hover:underline inline-flex items-center gap-1">
+            <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1">
               <ArrowLeft className="h-3 w-3" /> Try again
             </Link>
           </div>
@@ -138,37 +140,37 @@ const VerifyOTP = () => {
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
               <ShieldCheck className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-stone-900">Set New Password</h1>
-            <p className="text-sm text-stone-500 mt-1">Choose a strong password for your account</p>
+            <h1 className="text-2xl font-bold text-foreground">Set New Password</h1>
+            <p className="text-sm text-muted-foreground mt-1">Choose a strong password for your account</p>
           </div>
 
           {error && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-danger-subtle border border-danger/30 text-danger text-sm rounded-xl px-4 py-3">
               {error}
             </motion.div>
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="newPassword" className="text-sm font-semibold text-stone-700">New Password</Label>
+            <Label htmlFor="newPassword" className="text-sm font-semibold text-foreground">New Password</Label>
             <input
               id="newPassword"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full h-11 px-4 rounded-xl border-2 border-stone-200 bg-white focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-all text-sm"
+              className="w-full h-11 px-4 rounded-xl border-2 border-border bg-card focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none transition-all text-sm"
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="confirmPassword" className="text-sm font-semibold text-stone-700">Confirm Password</Label>
+            <Label htmlFor="confirmPassword" className="text-sm font-semibold text-foreground">Confirm Password</Label>
             <input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full h-11 px-4 rounded-xl border-2 border-stone-200 bg-white focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-all text-sm"
+              className="w-full h-11 px-4 rounded-xl border-2 border-border bg-card focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none transition-all text-sm"
             />
           </div>
 
@@ -177,7 +179,7 @@ const VerifyOTP = () => {
           </Button>
 
           <div className="text-center">
-            <Link to="/login" className="text-xs font-medium text-orange-600 hover:underline inline-flex items-center gap-1">
+            <Link to="/login" className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1">
               <ArrowLeft className="h-3 w-3" /> Back to login
             </Link>
           </div>

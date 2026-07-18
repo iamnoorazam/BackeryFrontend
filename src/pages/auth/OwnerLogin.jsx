@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Loader2, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,52 +48,62 @@ const OwnerLogin = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
-          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-600/20"
+          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D2691E] to-[#E8A04F] flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#D2691E]/20"
         >
           <Store className="h-6 w-6 text-white" />
         </motion.div>
-        <h1 className="text-2xl font-bold text-stone-900">Owner Login</h1>
-        <p className="text-sm text-stone-500 mt-1">Sign in to manage your store</p>
+        <h1 className="text-2xl font-bold text-foreground">Owner Login</h1>
+        <p className="text-sm text-muted-foreground mt-1">Sign in to manage your store</p>
       </div>
 
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 text-center"
+          className="bg-danger-subtle border border-danger/30 text-danger text-sm rounded-xl px-4 py-3 text-center"
         >
           {error}
         </motion.div>
       )}
 
       <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-sm font-semibold text-stone-700">Email</Label>
+        <Label htmlFor="email" className="text-sm font-semibold text-foreground">
+          Email
+        </Label>
         <Input
           id="email"
           type="email"
           value={email}
-          onChange={(e) => { setEmail(e.target.value); setError(""); }}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setError("");
+          }}
           placeholder="owner@bakery.com"
-          className="h-11 rounded-xl bg-white border-2 border-stone-200 focus-visible:border-orange-400"
+          className="h-11 rounded-xl bg-card border-2 border-border focus-visible:border-[#D2691E]"
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="password" className="text-sm font-semibold text-stone-700">Password</Label>
+        <Label htmlFor="password" className="text-sm font-semibold text-foreground">
+          Password
+        </Label>
         <Input
           id="password"
           type="password"
           value={password}
-          onChange={(e) => { setPassword(e.target.value); setError(""); }}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError("");
+          }}
           placeholder="••••••••"
-          className="h-11 rounded-xl bg-white border-2 border-stone-200 focus-visible:border-orange-400"
+          className="h-11 rounded-xl bg-card border-2 border-border focus-visible:border-[#D2691E]"
         />
       </div>
 
       <Button
         type="submit"
         disabled={loading}
-        className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-sm shadow-lg shadow-orange-500/20 transition-all duration-300 disabled:opacity-60"
+        className="w-full h-12 rounded-xl bg-gradient-to-r from-[#D2691E] to-[#E8A04F] hover:from-[#A0522D] hover:to-[#D2691E] text-white font-bold text-sm shadow-lg shadow-[#D2691E]/20 transition-all duration-300 disabled:opacity-60"
       >
         {loading ? (
           <span className="flex items-center gap-2">
@@ -104,6 +114,13 @@ const OwnerLogin = () => {
           "Login"
         )}
       </Button>
+
+      <p className="text-center text-sm text-muted-foreground">
+        New here?{" "}
+        <Link to="/merchant/register" className="font-semibold text-[#D2691E] hover:underline">
+          Become a merchant
+        </Link>
+      </p>
     </motion.form>
   );
 };

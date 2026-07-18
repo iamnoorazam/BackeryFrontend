@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 const Label = ({ className, ...props }) => (
   <LabelPrimitive.Root
     className={cn(
-      "text-sm font-semibold text-stone-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+      "text-sm font-semibold text-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
       className
     )}
     {...props}

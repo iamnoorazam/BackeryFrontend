@@ -24,7 +24,7 @@ const DialogContent = forwardRef(({ className, children, ...props }, ref) => (
       ref={ref}
       aria-describedby={undefined}
       className={cn(
-        "fixed z-50 bg-white shadow-modal",
+        "fixed z-50 bg-popover text-popover-foreground shadow-modal",
         "max-h-[85vh] overflow-y-auto",
         "bottom-0 left-0 right-0 sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:right-auto",
         "rounded-t-2xl sm:rounded-2xl",
@@ -37,7 +37,7 @@ const DialogContent = forwardRef(({ className, children, ...props }, ref) => (
       {...props}
     >
       {children}
-      <DialogClose className="absolute right-4 top-4 rounded-lg p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-all">
+      <DialogClose className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground/70 hover:text-foreground hover:bg-muted transition-all">
         <X className="h-4 w-4" />
       </DialogClose>
     </DialogPrimitive.Content>
@@ -50,12 +50,12 @@ const DialogHeader = ({ className, ...props }) => (
 );
 
 const DialogTitle = forwardRef(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title ref={ref} className={cn("text-lg font-bold text-stone-900", className)} {...props} />
+  <DialogPrimitive.Title ref={ref} className={cn("text-lg font-bold text-foreground", className)} {...props} />
 ));
 DialogTitle.displayName = "DialogTitle";
 
 const DialogDescription = forwardRef(({ className, ...props }, ref) => (
-  <DialogPrimitive.Description ref={ref} className={cn("text-sm text-stone-500", className)} {...props} />
+  <DialogPrimitive.Description ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
 ));
 DialogDescription.displayName = "DialogDescription";
 

@@ -36,7 +36,7 @@ const Profile = () => {
 
       <div className="bg-white border border-stone-200/80 rounded-2xl overflow-hidden shadow-soft">
         {/* Profile Header */}
-        <div className="bg-gradient-to-r from-orange-600 to-amber-500 p-6 sm:p-8 text-white">
+        <div className="bg-gradient-to-r from-[#D2691E] to-[#E8A04F] p-6 sm:p-8 text-white">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16 ring-4 ring-white/30">
               <AvatarFallback className="text-xl">

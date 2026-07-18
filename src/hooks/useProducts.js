@@ -51,3 +51,14 @@ export const useDeleteProduct = () => {
     },
   });
 };
+
+export const useSetAvailability = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, isAvailable }) => productApi.setAvailability(id, isAvailable),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+      qc.invalidateQueries({ queryKey: ["owner-products"] });
+    },
+  });
+};

@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const { login, logout } = useAuth();
+  const { adminLogin, logout } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,9 +26,9 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const user = await login({ email: email.trim(), password });
-      if (user.role === "admin") navigate("/admin/dashboard");
-      else if (user.role === "owner") navigate("/owner/dashboard");
+      const user = await adminLogin({ email: email.trim(), password });
+      if (user.role === "owner") navigate("/owner/dashboard");
+      else if (user.role === "admin") navigate("/admin/dashboard");
       else {
         logout();
         setError("Access denied. Admin/Owner only.");
@@ -58,41 +58,41 @@ const AdminLogin = () => {
         >
           <Shield className="h-6 w-6 text-white" />
         </motion.div>
-        <h1 className="text-2xl font-bold text-stone-900">Admin Login</h1>
-        <p className="text-sm text-stone-500 mt-1">Sign in to manage the store</p>
+        <h1 className="text-2xl font-bold text-foreground">Owner Login</h1>
+        <p className="text-sm text-muted-foreground mt-1">Sign in to manage the store</p>
       </div>
 
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 text-center"
+          className="bg-danger-subtle border border-danger/30 text-danger text-sm rounded-xl px-4 py-3 text-center"
         >
           {error}
         </motion.div>
       )}
 
       <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-sm font-semibold text-stone-700">Email</Label>
+        <Label htmlFor="email" className="text-sm font-semibold text-foreground">Email</Label>
         <Input
           id="email"
           type="email"
           value={email}
           onChange={(e) => { setEmail(e.target.value); setError(""); }}
           placeholder="admin@bakery.com"
-          className="h-11 rounded-xl bg-white border-2 border-stone-200 focus-visible:border-stone-400"
+          className="h-11 rounded-xl bg-card border-2 border-border focus-visible:border-primary"
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="password" className="text-sm font-semibold text-stone-700">Password</Label>
+        <Label htmlFor="password" className="text-sm font-semibold text-foreground">Password</Label>
         <Input
           id="password"
           type="password"
           value={password}
           onChange={(e) => { setPassword(e.target.value); setError(""); }}
           placeholder="••••••••"
-          className="h-11 rounded-xl bg-white border-2 border-stone-200 focus-visible:border-stone-400"
+          className="h-11 rounded-xl bg-card border-2 border-border focus-visible:border-primary"
         />
       </div>
 

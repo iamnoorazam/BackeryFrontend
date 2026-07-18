@@ -24,7 +24,7 @@ const SheetContent = forwardRef(({ className, children, side = "right", ...props
       ref={ref}
       aria-describedby={undefined}
       className={cn(
-        "fixed z-50 bg-white shadow-modal flex flex-col",
+        "fixed z-50 bg-popover text-popover-foreground shadow-modal flex flex-col",
         side === "right" && "inset-y-0 right-0 w-full max-w-sm animate-slide-in-right rounded-l-2xl",
         side === "left" && "inset-y-0 left-0 w-72 animate-slide-in-right rounded-r-2xl",
         className
@@ -32,7 +32,7 @@ const SheetContent = forwardRef(({ className, children, side = "right", ...props
       {...props}
     >
       {children}
-      <SheetClose className="absolute right-4 top-4 rounded-lg p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-all">
+      <SheetClose className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground/70 hover:text-foreground hover:bg-muted transition-all">
         <X className="h-5 w-5" />
       </SheetClose>
     </DialogPrimitive.Content>
@@ -45,7 +45,7 @@ const SheetHeader = ({ className, ...props }) => (
 );
 
 const SheetTitle = forwardRef(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title ref={ref} className={cn("text-lg font-bold text-stone-900", className)} {...props} />
+  <DialogPrimitive.Title ref={ref} className={cn("text-lg font-bold text-foreground", className)} {...props} />
 ));
 SheetTitle.displayName = "SheetTitle";
 

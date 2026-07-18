@@ -1,0 +1,35 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Saffron &amp; Silk">
+  <defs>
+    <linearGradient id="ssBg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F3B24E"/>
+      <stop offset="0.42" stop-color="#D2691E"/>
+      <stop offset="1" stop-color="#9E2B5E"/>
+    </linearGradient>
+    <linearGradient id="ssSheen" x1="14" y1="8" x2="30" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- emblem badge -->
+  <rect x="2" y="2" width="60" height="60" rx="20" fill="url(#ssBg)"/>
+  <rect x="2" y="2" width="60" height="60" rx="20" fill="url(#ssSheen)"/>
+  <rect x="5.5" y="5.5" width="53" height="53" rx="16.5" fill="none" stroke="#FFF6E6" stroke-opacity="0.5" stroke-width="1.4"/>
+
+  <!-- cherry -->
+  <circle cx="32" cy="14.5" r="3" fill="#FFF8F0"/>
+
+  <!-- frosting swirl -->
+  <path d="M20 31 C18.5 25 24 22 26.5 24.5 C27 19.3 37 19.3 37.5 24.5 C40 22 45.5 25 44 31 Z" fill="#FFF8F0"/>
+
+  <!-- cupcake liner -->
+  <path d="M21 32 H43 L40 49 C39.7 50.6 38.4 51.5 36.8 51.5 H27.2 C25.6 51.5 24.3 50.6 24 49 Z" fill="#FFF8F0"/>
+
+  <!-- silk sash at the rim (boutique nod) -->
+  <rect x="20.5" y="30.9" width="23" height="3" rx="1.5" fill="#9E2B5E"/>
+
+  <!-- liner ridges -->
+  <path d="M28 35.5 L27.2 48" stroke="#E8A04F" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+  <path d="M32 35.5 L32 48.5" stroke="#E8A04F" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+  <path d="M36 35.5 L36.8 48" stroke="#E8A04F" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+</svg>

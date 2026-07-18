@@ -1,5 +1,28 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { orderApi } from "@/api/order.api";
+import { connectSocket, disconnectSocket } from "@/services/socket";
+import { useAuth } from "@/store/authStore";
+
+// Live order tracking for customers: subscribe to server-pushed status changes
+// and refresh the order list/detail so the tracker updates without a reload.
+export const useOrderStatusStream = () => {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  useEffect(() => {
+    if (!user?._id) return;
+    const socket = connectSocket(user._id);
+    const onUpdate = (payload) => {
+      qc.invalidateQueries({ queryKey: ["my-orders"] });
+      if (payload?.orderId) qc.invalidateQueries({ queryKey: ["order", payload.orderId] });
+    };
+    socket.on("order_status_update", onUpdate);
+    return () => {
+      socket.off("order_status_update", onUpdate);
+      disconnectSocket();
+    };
+  }, [user, qc]);
+};
 
 export const useMyOrders = () =>
   useQuery({
