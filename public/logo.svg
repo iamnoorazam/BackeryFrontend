@@ -1,0 +1,181 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Saffron &amp; Silk">
+  <defs>
+    <!-- Background jewel gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#1A0A1E"/>
+      <stop offset="60%" stop-color="#2D1038"/>
+      <stop offset="100%" stop-color="#0D0510"/>
+    </radialGradient>
+
+    <!-- Gold gradients for croissant -->
+    <linearGradient id="gold1" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" stop-color="#FDE08B"/>
+      <stop offset="25%" stop-color="#E8B84B"/>
+      <stop offset="50%" stop-color="#D4943A"/>
+      <stop offset="75%" stop-color="#B8752E"/>
+      <stop offset="100%" stop-color="#8C5A22"/>
+    </linearGradient>
+    <linearGradient id="gold2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE1A0"/>
+      <stop offset="40%" stop-color="#DCA54A"/>
+      <stop offset="100%" stop-color="#A06E28"/>
+    </linearGradient>
+    <linearGradient id="gold3" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFE8A0"/>
+      <stop offset="50%" stop-color="#D4943A"/>
+      <stop offset="100%" stop-color="#7A4E1A"/>
+    </linearGradient>
+
+    <!-- Silk ribbon gradients -->
+    <linearGradient id="silk1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E84D8A"/>
+      <stop offset="30%" stop-color="#D2366E"/>
+      <stop offset="60%" stop-color="#B8225A"/>
+      <stop offset="100%" stop-color="#8A1845"/>
+    </linearGradient>
+    <linearGradient id="silk2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF6BA6"/>
+      <stop offset="50%" stop-color="#D2366E"/>
+      <stop offset="100%" stop-color="#6E1035"/>
+    </linearGradient>
+    <linearGradient id="silk3" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF8AB8"/>
+      <stop offset="40%" stop-color="#E84D8A"/>
+      <stop offset="100%" stop-color="#B8225A"/>
+    </linearGradient>
+
+    <!-- Highlight/sheen -->
+    <linearGradient id="sheen" x1="20%" y1="10%" x2="80%" y2="90%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="edgeGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Sparkle -->
+    <radialGradient id="sparkle" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#FFE8A0" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="innerGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feSpecularLighting in="blur" specularConstant="0.8" specularExponent="25" result="spec">
+        <fePointLight x="200" y="100" z="200"/>
+      </feSpecularLighting>
+      <feComposite in="SourceGraphic" in2="spec" operator="arithmetic" k1="0" k2="1" k3="0.3" k4="0"/>
+    </filter>
+  </defs>
+
+  <!-- Dark circular background -->
+  <rect x="0" y="0" width="512" height="512" rx="128" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- Outer ring glow -->
+  <rect x="12" y="12" width="488" height="488" rx="120" fill="none" stroke="#E84D8A" stroke-opacity="0.15" stroke-width="2"/>
+  <rect x="18" y="18" width="476" height="476" rx="116" fill="none" stroke="#FDE08B" stroke-opacity="0.08" stroke-width="1"/>
+
+  <!-- ==================== 3D CROISSANT (Bakery) ==================== -->
+  <g filter="url(#shadow)">
+    <!-- Bottom shadow/base -->
+    <ellipse cx="210" cy="340" rx="130" ry="20" fill="#000000" opacity="0.3"/>
+
+    <!-- Main body - back curve -->
+    <path d="M120 280 C110 240 130 180 170 155 C200 135 240 130 270 145 C310 165 340 200 340 240 C340 270 330 300 300 320 C270 340 230 345 190 335 C150 325 125 305 120 280Z" fill="url(#gold2)"/>
+
+    <!-- Left wing -->
+    <path d="M120 280 C115 265 115 245 130 230 C145 215 165 210 180 220 C195 230 195 255 180 270 C165 285 140 290 120 280Z" fill="url(#gold1)"/>
+
+    <!-- Right wing -->
+    <path d="M340 240 C340 220 335 200 320 190 C305 180 285 180 275 195 C265 210 270 235 285 250 C300 265 325 270 340 240Z" fill="url(#gold3)"/>
+
+    <!-- Top center ridge -->
+    <path d="M200 155 C215 140 240 130 260 135 C280 140 295 155 300 170 C285 160 265 155 250 158 C235 161 215 165 200 155Z" fill="#FFE8A0" opacity="0.6"/>
+
+    <!-- Croissant layers/ridges -->
+    <path d="M150 230 C165 220 180 222 190 235" stroke="#7A4E1A" stroke-width="3" stroke-linecap="round" opacity="0.4" fill="none"/>
+    <path d="M135 260 C150 248 168 248 180 260" stroke="#7A4E1A" stroke-width="3" stroke-linecap="round" opacity="0.4" fill="none"/>
+    <path d="M315 225 C300 215 285 217 275 230" stroke="#7A4E1A" stroke-width="3" stroke-linecap="round" opacity="0.4" fill="none"/>
+    <path d="M330 250 C315 238 298 238 285 250" stroke="#7A4E1A" stroke-width="3" stroke-linecap="round" opacity="0.4" fill="none"/>
+
+    <!-- Croissant highlight -->
+    <path d="M180 190 C200 175 230 165 250 170" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M160 215 C180 200 210 190 230 195" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+    <!-- Crumb texture dots -->
+    <circle cx="175" cy="250" r="2" fill="#8C5A22" opacity="0.3"/>
+    <circle cx="190" cy="265" r="1.5" fill="#8C5A22" opacity="0.25"/>
+    <circle cx="210" cy="240" r="1.8" fill="#8C5A22" opacity="0.3"/>
+    <circle cx="300" cy="245" r="2" fill="#8C5A22" opacity="0.25"/>
+    <circle cx="285" cy="260" r="1.5" fill="#8C5A22" opacity="0.3"/>
+    <circle cx="320" cy="255" r="1.8" fill="#8C5A22" opacity="0.2"/>
+  </g>
+
+  <!-- ==================== 3D SILK RIBBON WRAPPING (Fashion) ==================== -->
+
+  <!-- Ribbon behind croissant (back loop) -->
+  <path d="M100 300 C80 340 90 400 130 420 C100 390 95 340 110 310Z" fill="url(#silk2)" opacity="0.7"/>
+
+  <!-- Ribbon wrapping from front - left to right across croissant -->
+  <path d="M105 310 C115 290 140 275 170 268 C200 261 230 262 260 270 C290 278 310 295 325 318 C335 335 338 355 330 370 C322 385 305 395 280 395 C260 395 245 388 235 378 C225 368 222 355 225 345 C228 335 238 328 250 328 C262 328 270 335 272 345" stroke="url(#silk1)" stroke-width="28" stroke-linecap="round" fill="none"/>
+
+  <!-- Ribbon highlight -->
+  <path d="M130 300 C150 285 180 275 210 270 C240 265 268 268 290 280" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="6" stroke-linecap="round" fill="none"/>
+
+  <!-- Ribbon lower edge shadow -->
+  <path d="M115 325 C140 308 170 296 200 290 C230 284 258 286 280 295" stroke="#6E1035" stroke-opacity="0.4" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+  <!-- ==================== DRAPED FABRIC (Fashion element) ==================== -->
+  
+  <!-- Fabric draping below -->
+  <path d="M160 370 C170 395 165 425 155 445 C145 460 125 468 110 460 C95 452 90 435 100 420 C110 405 130 398 150 400 C160 401 165 405 168 412" fill="url(#silk3)" opacity="0.8"/>
+  <path d="M280 390 C290 415 295 440 285 458 C275 472 258 478 245 472 C232 466 228 452 235 440 C242 428 258 422 272 424" fill="url(#silk2)" opacity="0.7"/>
+
+  <!-- Fabric fold highlights -->
+  <path d="M165 380 C170 400 165 425 158 440" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M282 400 C288 420 285 442 278 455" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+  <!-- ==================== ELEGANT TAILOR'S SCISSORS / FASHION ICON ==================== -->
+  
+  <!-- Scissor handle left ring -->
+  <ellipse cx="130" cy="195" rx="18" ry="12" transform="rotate(-20 130 195)" fill="none" stroke="url(#silk1)" stroke-width="4"/>
+  <ellipse cx="128" cy="193" rx="10" ry="6" transform="rotate(-20 128 193)" fill="none" stroke="#FF8AB8" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- Scissor handle right ring -->
+  <ellipse cx="360" cy="195" rx="18" ry="12" transform="rotate(20 360 195)" fill="none" stroke="url(#silk1)" stroke-width="4"/>
+  <ellipse cx="362" cy="193" rx="10" ry="6" transform="rotate(20 362 193)" fill="none" stroke="#FF8AB8" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- Scissor blades (subtle, crossing behind croissant at top) -->
+  <path d="M140 200 C170 180 200 170 230 168" stroke="#D4943A" stroke-width="2.5" stroke-linecap="round" opacity="0.5" fill="none"/>
+  <path d="M350 200 C320 180 290 170 260 168" stroke="#D4943A" stroke-width="2.5" stroke-linecap="round" opacity="0.5" fill="none"/>
+
+  <!-- ==================== SPARKLES / MAGIC DUST ==================== -->
+  <circle cx="100" cy="160" r="4" fill="url(#sparkle)" filter="url(#glow)"/>
+  <circle cx="390" cy="150" r="3" fill="url(#sparkle)" filter="url(#glow)"/>
+  <circle cx="420" cy="280" r="2.5" fill="url(#sparkle)" filter="url(#glow)"/>
+  <circle cx="85" cy="350" r="2" fill="url(#sparkle)" filter="url(#glow)"/>
+  <circle cx="380" cy="380" r="3.5" fill="url(#sparkle)" filter="url(#glow)"/>
+
+  <!-- Small star sparkles -->
+  <path d="M105 150 L108 145 L111 150 L108 155Z" fill="#FFFFFF" opacity="0.7"/>
+  <path d="M385 145 L388 140 L391 145 L388 150Z" fill="#FFFFFF" opacity="0.6"/>
+  <path d="M415 275 L417 271 L419 275 L417 279Z" fill="#FFFFFF" opacity="0.5"/>
+
+  <!-- ==================== AMBIENT GLOW OVERLAY ==================== -->
+  <ellipse cx="230" cy="250" rx="160" ry="140" fill="url(#sheen)" opacity="0.3"/>
+
+  <!-- Brand mark ring -->
+  <rect x="16" y="16" width="480" height="480" rx="124" fill="none" stroke="url(#silk1)" stroke-opacity="0.12" stroke-width="1.5"/>
+  <rect x="24" y="24" width="464" height="464" rx="116" fill="none" stroke="url(#gold1)" stroke-opacity="0.06" stroke-width="0.5"/>
+</svg>

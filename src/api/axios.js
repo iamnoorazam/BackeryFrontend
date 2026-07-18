@@ -1,9 +1,15 @@
 import axios from "axios";
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  baseURL: BASE_URL,
   timeout: 10000, // 10 second timeout
 });
+
+// Endpoints that must never trigger a refresh-and-retry (a 401 from them is a
+// real credential failure, and /auth/refresh 401-ing means the session is gone).
+const AUTH_ENDPOINTS = ["/auth/login", "/auth/admin-login", "/auth/register", "/auth/refresh"];
 
 api.interceptors.request.use(
   (config) => {
@@ -18,11 +24,50 @@ api.interceptors.request.use(
   },
 );
 
-// Response interceptor
+const clearSession = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("user");
+};
+
+const redirectToLogin = () => {
+  if (!window.location.pathname.startsWith("/login")) {
+    window.location.href = "/login";
+  }
+};
+
+// A single in-flight refresh shared by every request that 401s concurrently, so
+// a burst of expired-token requests triggers exactly one /auth/refresh rotation
+// (a stampede of refreshes would rotate the token repeatedly and log the user
+// out via reuse-detection). Uses a bare axios call so its own errors can't
+// recurse back through this interceptor.
+let refreshPromise = null;
+
+const refreshAccessToken = () => {
+  if (refreshPromise) return refreshPromise;
+
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) return Promise.reject(new Error("No refresh token"));
+
+  refreshPromise = axios
+    .post(`${BASE_URL}/auth/refresh`, { refreshToken })
+    .then((res) => {
+      const { token, refreshToken: rotated } = res.data.data;
+      localStorage.setItem("token", token);
+      if (rotated) localStorage.setItem("refreshToken", rotated);
+      return token;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+};
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const { response, code, message } = error;
+  async (error) => {
+    const { response, code, message, config } = error;
     const status = response?.status;
     const errorData = response?.data;
 
@@ -33,11 +78,25 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle 401 Unauthorized
-    if (status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+    const isAuthEndpoint = AUTH_ENDPOINTS.includes(config?.url);
+
+    // Handle 401 Unauthorized: the access token is likely just expired. Try one
+    // silent refresh-and-retry before giving up. Skipped for auth endpoints and
+    // for a request we've already retried once.
+    if (status === 401 && !isAuthEndpoint) {
+      if (!config?._retry) {
+        config._retry = true;
+        try {
+          const newToken = await refreshAccessToken();
+          config.headers = config.headers || {};
+          config.headers.Authorization = `Bearer ${newToken}`;
+          return api(config);
+        } catch {
+          // fall through to the hard-logout below
+        }
+      }
+      clearSession();
+      redirectToLogin();
       error.userMessage = "Your session has expired. Please login again";
       error.type = "auth";
       return Promise.reject(error);

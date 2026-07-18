@@ -31,6 +31,18 @@ export const useCart = () => {
   });
 };
 
+// Live cart validation (logged-in customers only). Returns { valid, issues }.
+export const useValidateCart = () => {
+  const { user, isLoggedIn } = useAuth();
+  const enabled = isLoggedIn && user?.role === "customer";
+  return useQuery({
+    queryKey: ["cart-validate"],
+    queryFn: () => cartApi.validate().then((r) => r.data.data),
+    enabled,
+    staleTime: 0,
+  });
+};
+
 export const useAddToCart = () => {
   const { user, isLoggedIn } = useAuth();
   const qc = useQueryClient();
@@ -59,6 +71,7 @@ export const useAddToCart = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["guest-cart"] });
+      qc.invalidateQueries({ queryKey: ["cart-validate"] });
     },
   });
 };
@@ -81,6 +94,7 @@ export const useRemoveFromCart = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["guest-cart"] });
+      qc.invalidateQueries({ queryKey: ["cart-validate"] });
     },
   });
 };
@@ -104,6 +118,7 @@ export const useUpdateCartQuantity = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["guest-cart"] });
+      qc.invalidateQueries({ queryKey: ["cart-validate"] });
     },
   });
 };
@@ -122,6 +137,7 @@ export const useClearCart = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["guest-cart"] });
+      qc.invalidateQueries({ queryKey: ["cart-validate"] });
     },
   });
 };

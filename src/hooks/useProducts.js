@@ -9,11 +9,12 @@ export const useProducts = (params, options = {}) =>
     ...options,
   });
 
-export const useProduct = (id) =>
+export const useProduct = (id, options = {}) =>
   useQuery({
     queryKey: ["product", id],
     queryFn: () => productApi.getById(id).then((r) => r.data.data),
     enabled: !!id,
+    ...options,
   });
 
 export const useCreateProduct = () => {
@@ -48,6 +49,17 @@ export const useDeleteProduct = () => {
       qc.invalidateQueries({ queryKey: ["products"] });
       qc.invalidateQueries({ queryKey: ["owner-products"] });
       qc.invalidateQueries({ queryKey: ["owner-dashboard"] });
+    },
+  });
+};
+
+export const useSetAvailability = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, isAvailable }) => productApi.setAvailability(id, isAvailable),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+      qc.invalidateQueries({ queryKey: ["owner-products"] });
     },
   });
 };

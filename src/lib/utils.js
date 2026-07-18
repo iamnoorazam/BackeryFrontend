@@ -9,18 +9,20 @@ export const formatPrice = (price) =>
 export const formatDate = (date) =>
   new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
+// Theme-aware status pills. Uses semantic chip utilities (defined in index.css)
+// so order/payment statuses stay legible in both light and dark themes.
 export const getStatusColor = (status) => {
   const colors = {
-    placed: "bg-blue-100 text-blue-700",
-    accepted: "bg-yellow-100 text-yellow-700",
-    preparing: "bg-orange-100 text-orange-700",
-    out_for_delivery: "bg-purple-100 text-purple-700",
-    waiting_for_otp: "bg-indigo-100 text-indigo-700",
-    delivered: "bg-green-100 text-green-700",
-    cancelled: "bg-red-100 text-red-700",
-    paid: "bg-green-100 text-green-700",
-    pending: "bg-yellow-100 text-yellow-700",
-    failed: "bg-red-100 text-red-700",
+    placed: "chip-info",
+    accepted: "chip-warning",
+    preparing: "chip-warning",
+    out_for_delivery: "chip-info",
+    waiting_for_otp: "chip-info",
+    delivered: "chip-success",
+    cancelled: "chip-danger",
+    paid: "chip-success",
+    pending: "chip-warning",
+    failed: "chip-danger",
   };
-  return colors[status] || "bg-gray-100 text-gray-700";
+  return colors[status] || "bg-muted text-muted-foreground";
 };

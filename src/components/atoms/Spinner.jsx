@@ -6,7 +6,7 @@ const Spinner = ({ className, size = "md" }) => {
   return (
     <Loader2
       className={cn(
-        "animate-spin text-orange-500",
+        "animate-spin text-[#D2691E]",
         sizes[size],
         className
       )}

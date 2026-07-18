@@ -4,7 +4,7 @@ import EmptyState from "@/components/atoms/EmptyState";
 
 const ProductCardSkeleton = ({ index = 0 }) => (
   <div
-    className="rounded-2xl border border-stone-200 overflow-hidden animate-fade-up"
+    className="rounded-2xl border border-border overflow-hidden animate-fade-up"
     style={{ animationDelay: `${index * 60}ms`, animationFillMode: "both" }}
   >
     <Skeleton className="aspect-[4/3] w-full" />

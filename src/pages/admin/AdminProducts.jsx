@@ -38,7 +38,7 @@ const CategorySection = ({ name, products, onEdit, onDelete, onQuickPrice, loadi
         className="flex items-center gap-2 w-full text-left mb-2 group"
       >
         {open ? <ChevronDown className="h-4 w-4 text-stone-400" /> : <ChevronRight className="h-4 w-4 text-stone-400" />}
-        <h2 className="text-base font-bold text-stone-900 group-hover:text-orange-600 transition-colors">{name}</h2>
+        <h2 className="text-base font-bold text-stone-900 group-hover:text-[#D2691E] transition-colors">{name}</h2>
         <Badge variant="secondary" className="text-[10px]">{products.length}</Badge>
       </button>
       {open && (
@@ -282,7 +282,7 @@ const AdminProducts = () => {
                 <div className="space-y-1">
                   <Label>Image</Label>
                   <div className="flex items-center gap-3">
-                    <label className="flex items-center gap-2 cursor-pointer bg-white border border-dashed border-stone-300 hover:border-orange-400 rounded-lg px-4 py-3 transition-colors w-full">
+                    <label className="flex items-center gap-2 cursor-pointer bg-white border border-dashed border-stone-300 hover:border-[#D2691E] rounded-lg px-4 py-3 transition-colors w-full">
                       <input
                         type="file" accept="image/*"
                         onChange={(e) => {

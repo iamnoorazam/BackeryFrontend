@@ -1,49 +1,132 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* =============================================================
+   SAFFRON & SILK — DESIGN SYSTEM v2
+   One unified token layer. Every surface, text and border reads
+   from these variables, so light/dark themes stay in perfect sync.
+   Brand: caramel/saffron (bakery) + silk-rose (fashion accent).
+   ============================================================= */
+
 @layer base {
   :root {
-    --background: 36 33% 97%;
-    --foreground: 20 14% 8%;
+    /* Surfaces */
+    --background: 36 100% 97%;      /* warm cream page */
+    --surface: 0 0% 100%;           /* base card */
+    --surface-2: 34 60% 96%;        /* subtly raised / inset */
+    --surface-3: 32 45% 93%;        /* hover / active tint */
+    --foreground: 15 30% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 20 14% 8%;
-    --primary: 22 100% 50%;
+    --card-foreground: 15 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 15 30% 15%;
+
+    /* Brand */
+    --primary: 25 72% 47%;          /* caramel #D2691E */
     --primary-foreground: 0 0% 100%;
-    --secondary: 30 20% 96%;
-    --secondary-foreground: 20 14% 8%;
-    --muted: 30 10% 94%;
-    --muted-foreground: 20 8% 44%;
-    --accent: 22 40% 94%;
-    --accent-foreground: 20 14% 8%;
-    --destructive: 0 84% 60%;
+    --brand: 25 72% 47%;
+    --brand-2: 334 57% 39%;         /* silk rose #9E2B5E */
+
+    /* Neutrals / muted */
+    --secondary: 30 50% 95%;
+    --secondary-foreground: 15 30% 15%;
+    --muted: 30 30% 94%;
+    --muted-foreground: 20 12% 42%;
+    --accent: 30 45% 92%;
+    --accent-foreground: 15 30% 15%;
+
+    /* Lines & focus */
+    --border: 30 22% 87%;
+    --input: 30 22% 87%;
+    --ring: 25 72% 47%;
+
+    /* Semantic */
+    --success: 152 60% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-subtle: 152 55% 94%;
+    --warning: 34 92% 45%;
+    --warning-foreground: 0 0% 100%;
+    --warning-subtle: 40 90% 94%;
+    --danger: 0 72% 48%;
+    --destructive: 0 72% 48%;
+    --danger-foreground: 0 0% 100%;
     --destructive-foreground: 0 0% 100%;
-    --border: 30 12% 88%;
-    --input: 30 12% 88%;
-    --ring: 22 100% 50%;
-    --radius: 0.75rem;
+    --danger-subtle: 0 80% 96%;
+    --info: 210 80% 48%;
+    --info-foreground: 0 0% 100%;
+    --info-subtle: 208 80% 95%;
+
+    --radius: 0.85rem;
+    --shadow-color: 20 40% 20%;
+  }
+
+  .dark {
+    /* Warm charcoal — keeps the bakery warmth, never a cold pure-black */
+    --background: 20 14% 8%;
+    --surface: 22 13% 12%;
+    --surface-2: 22 12% 15%;
+    --surface-3: 22 11% 19%;
+    --foreground: 34 30% 92%;
+    --card: 22 13% 12%;
+    --card-foreground: 34 30% 92%;
+    --popover: 22 14% 13%;
+    --popover-foreground: 34 30% 92%;
+
+    --primary: 27 84% 57%;          /* brighter caramel for dark contrast */
+    --primary-foreground: 20 20% 8%;
+    --brand: 27 84% 57%;
+    --brand-2: 334 62% 62%;
+
+    --secondary: 22 10% 18%;
+    --secondary-foreground: 34 25% 90%;
+    --muted: 22 10% 17%;
+    --muted-foreground: 30 10% 62%;
+    --accent: 22 12% 20%;
+    --accent-foreground: 34 25% 90%;
+
+    --border: 24 10% 22%;
+    --input: 24 10% 24%;
+    --ring: 27 84% 57%;
+
+    --success: 152 52% 46%;
+    --success-subtle: 152 30% 16%;
+    --warning: 36 88% 55%;
+    --warning-subtle: 36 40% 16%;
+    --danger: 0 72% 60%;
+    --destructive: 0 72% 60%;
+    --danger-subtle: 0 40% 18%;
+    --info: 208 82% 62%;
+    --info-subtle: 208 40% 18%;
+
+    --shadow-color: 20 60% 2%;
   }
 }
 
 @layer base {
-  * { @apply border-border; }
+  * {
+    @apply border-border;
+  }
   body {
     @apply bg-background text-foreground font-sans antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
-  h1, h2, h3, h4, h5, h6 { @apply font-display; }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
 }
 
 @layer utilities {
   .perspective-1000 { perspective: 1000px; }
   .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-area-top { padding-top: env(safe-area-inset-top, 0px); }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
+  .tap-transparent { -webkit-tap-highlight-color: transparent; }
 }
 
 * {
@@ -52,6 +135,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -59,46 +143,66 @@ body {
 }
 
 ::selection {
-  background: hsl(22 100% 50% / 0.15);
-  color: hsl(20 14% 8%);
+  background: hsl(var(--primary) / 0.22);
+  color: hsl(var(--foreground));
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: hsl(20 8% 44% / 0.15);
-  border-radius: 3px;
+  background: hsl(var(--foreground) / 0.16);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(20 8% 44% / 0.3);
+  background: hsl(var(--foreground) / 0.3);
+  background-clip: content-box;
 }
 
 @layer components {
+  /* Frosted surfaces — theme-aware */
   .glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-soft;
+    @apply bg-card/70 backdrop-blur-xl border border-border/60 shadow-soft;
   }
-
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-elevated hover:-translate-y-0.5;
+  .glass-strong {
+    @apply bg-card/85 backdrop-blur-2xl border border-border/60;
   }
-
-  .gradient-primary {
-    @apply bg-gradient-to-r from-orange-600 to-amber-500;
-  }
-
-  .gradient-subtle {
-    @apply bg-gradient-to-br from-orange-50 to-amber-50;
-  }
-
   .nav-blur {
-    @apply bg-white/90 backdrop-blur-xl border-b border-stone-200/60;
+    @apply bg-background/80 backdrop-blur-2xl border-b border-border/70;
+  }
+
+  /* Elevation-on-hover interaction used across cards */
+  .card-hover {
+    @apply transition-all duration-300 ease-out hover:shadow-elevated hover:-translate-y-0.5;
+  }
+  .pressable {
+    @apply transition-transform duration-150 active:scale-[0.97];
+  }
+
+  /* Brand gradients */
+  .gradient-primary { @apply bg-gradient-to-r from-[#D2691E] to-[#E8A04F]; }
+  .gradient-silk    { @apply bg-gradient-to-r from-[#9E2B5E] to-[#E58FB0]; }
+  .gradient-brand   { @apply bg-gradient-to-r from-[#D2691E] to-[#9E2B5E]; }
+  .text-gradient-brand {
+    @apply bg-gradient-to-r from-[#D2691E] to-[#9E2B5E] bg-clip-text text-transparent;
+  }
+  .gradient-subtle { @apply bg-gradient-to-br from-background to-surface-2; }
+
+  /* Semantic chips (theme-aware, replaces hardcoded status colors) */
+  .chip-success { @apply bg-[hsl(var(--success-subtle))] text-[hsl(var(--success))]; }
+  .chip-warning { @apply bg-[hsl(var(--warning-subtle))] text-[hsl(var(--warning))]; }
+  .chip-danger  { @apply bg-[hsl(var(--danger-subtle))] text-[hsl(var(--danger))]; }
+  .chip-info    { @apply bg-[hsl(var(--info-subtle))] text-[hsl(var(--info))]; }
+
+  /* Shimmer skeleton track */
+  .skeleton-shimmer {
+    @apply relative overflow-hidden bg-muted;
+  }
+  .skeleton-shimmer::before {
+    content: "";
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.06), transparent);
+    animation: shimmer 1.6s infinite;
   }
 }

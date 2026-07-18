@@ -1,6 +1,8 @@
 import { createContext, useContext, useState } from "react";
 import { authApi } from "@/api/auth.api";
 import { cartApi } from "@/api/cart.api";
+import { merchantApi } from "@/api/merchant.api";
+import { deliveryPartnerApi } from "@/api/deliveryPartner.api";
 
 const GUEST_CART_KEY = "guest_cart";
 
@@ -12,11 +14,16 @@ export const AuthProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : null;
   });
 
+  const persistSession = ({ token, refreshToken, user }) => {
+    localStorage.setItem("token", token);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("user", JSON.stringify(user));
+  };
+
   const login = async (credentials) => {
     const res = await authApi.login(credentials);
-    const { token, user } = res.data.data;
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
+    const { token, refreshToken, user } = res.data.data;
+    persistSession({ token, refreshToken, user });
     setUser(user);
 
     if (user.role === "customer") {
@@ -48,32 +55,66 @@ export const AuthProvider = ({ children }) => {
 
   const adminLogin = async (credentials) => {
     const res = await authApi.adminLogin(credentials);
-    const { token, user } = res.data.data;
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
+    const { token, refreshToken, user } = res.data.data;
+    persistSession({ token, refreshToken, user });
     setUser(user);
     return user;
   };
 
   const register = async (data) => {
     const res = await authApi.register(data);
-    const { token, user } = res.data.data;
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
+    const { token, refreshToken, user } = res.data.data;
+    persistSession({ token, refreshToken, user });
     setUser(user);
     return user;
   };
 
+  // Merchant onboarding (Phase 3, M1): creates an owner + draft store and logs
+  // them straight in so they can complete KYC. Returns the full payload
+  // (incl. vendor) rather than just the user.
+  const merchantRegister = async (data) => {
+    const res = await merchantApi.register(data);
+    const { token, refreshToken, user } = res.data.data;
+    persistSession({ token, refreshToken, user });
+    setUser(user);
+    return res.data.data;
+  };
+
+  // Delivery-partner onboarding (Phase 4, D1): creates a rider (role "delivery")
+  // + draft profile and logs them straight in to complete KYC. Returns the full
+  // payload (incl. partner) rather than just the user.
+  const deliveryRegister = async (data) => {
+    const res = await deliveryPartnerApi.register(data);
+    const { token, refreshToken, user } = res.data.data;
+    persistSession({ token, refreshToken, user });
+    setUser(user);
+    return res.data.data;
+  };
+
   const logout = () => {
-    authApi.logout().catch(() => {});
+    // Revoke this device's refresh token server-side (fire-and-forget).
+    const refreshToken = localStorage.getItem("refreshToken");
+    authApi.logout(refreshToken).catch(() => {});
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     setUser(null);
     window.location.href = "/";
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, adminLogin, register, logout, isLoggedIn: !!user }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        adminLogin,
+        register,
+        merchantRegister,
+        deliveryRegister,
+        logout,
+        isLoggedIn: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

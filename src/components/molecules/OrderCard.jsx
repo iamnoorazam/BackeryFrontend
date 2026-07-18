@@ -10,18 +10,18 @@ const OrderCard = ({ order }) => {
 
   return (
     <Card className="animate-fade-up overflow-hidden">
-      <div className={`h-1 ${order.orderStatus === "delivered" ? "bg-emerald-500" : order.orderStatus === "cancelled" ? "bg-red-500" : "bg-orange-500"}`} />
+      <div className={`h-1 ${order.orderStatus === "delivered" ? "bg-success" : order.orderStatus === "cancelled" ? "bg-danger" : "bg-primary"}`} />
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center">
-              <Package className="h-4 w-4 text-stone-500" />
+            <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
+              <Package className="h-4 w-4 text-muted-foreground" />
             </div>
             <div>
-              <p className="text-xs text-stone-400 font-mono">#{order._id.slice(-8).toUpperCase()}</p>
+              <p className="text-xs text-muted-foreground/70 font-mono">#{order._id.slice(-8).toUpperCase()}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <Clock className="h-3 w-3 text-stone-400" />
-                <p className="text-xs text-stone-400">{formatDate(order.createdAt)}</p>
+                <Clock className="h-3 w-3 text-muted-foreground/70" />
+                <p className="text-xs text-muted-foreground/70">{formatDate(order.createdAt)}</p>
               </div>
             </div>
           </div>
@@ -32,23 +32,23 @@ const OrderCard = ({ order }) => {
 
         <div className="mt-3 space-y-1">
           {order.items?.slice(0, 3).map((item) => (
-            <p key={item._id} className="text-sm text-stone-600">
-              <span className="font-medium text-stone-900">{item.product?.name}</span>
+            <p key={item._id} className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{item.product?.name}</span>
               {" × "}{item.quantity}
             </p>
           ))}
           {order.items?.length > 3 && (
-            <p className="text-xs text-stone-400">+{order.items.length - 3} more items</p>
+            <p className="text-xs text-muted-foreground/70">+{order.items.length - 3} more items</p>
           )}
         </div>
 
         <Separator className="my-3" />
 
         <div className="flex items-center justify-between">
-          <span className={`text-xs font-semibold uppercase px-2 py-0.5 rounded-md ${order.paymentMethod === "cod" ? "bg-amber-50 text-amber-700" : "bg-sky-50 text-sky-700"}`}>
+          <span className={`text-xs font-semibold uppercase px-2 py-0.5 rounded-md ${order.paymentMethod === "cod" ? "bg-primary/10 text-primary" : "chip-info"}`}>
             {order.paymentMethod === "cod" ? "COD" : "Online"}
           </span>
-          <span className="text-lg font-bold text-stone-900">{formatPrice(order.totalPrice)}</span>
+          <span className="text-lg font-bold text-foreground">{formatPrice(order.totalPrice)}</span>
         </div>
       </CardContent>
     </Card>

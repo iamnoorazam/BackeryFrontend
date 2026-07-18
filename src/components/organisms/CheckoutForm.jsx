@@ -1,107 +1,34 @@
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/store/Toast";
-import { deliveryApi } from "@/api/delivery.api";
+import { useWallet } from "@/hooks/useWallet";
+import { useCheckoutDelivery } from "@/hooks/useCheckoutDelivery";
+import { getAppliedCode, clearAppliedCode } from "@/lib/appliedCoupon";
 import { formatPrice } from "@/lib/utils";
-import { useLoadScript } from "@react-google-maps/api";
 import {
-  MapPin, Navigation, Loader2, CheckCircle, AlertTriangle, CreditCard, Banknote,
-  ChevronDown, ChevronUp, Phone, Mail, User, FileText, Crosshair, Truck, Clock
+  MapPin, Loader2, AlertTriangle, CreditCard, Banknote,
+  ChevronDown, ChevronUp, User, FileText, Crosshair, Truck, Clock, Wallet,
+  Check, ChevronLeft, ArrowRight,
 } from "lucide-react";
+import RHFField from "./checkout/RHFField";
+import CheckoutIssueButton from "./checkout/CheckoutIssueButton";
+import OrderConfirmation from "./checkout/OrderConfirmation";
+import { COUNTRY_CODES, COUNTRIES, checkoutSchema } from "./checkout/checkout.constants";
 
-const libraries = ["places"];
+const STEPS = ["Address", "Payment", "Review"];
 
-const COUNTRY_CODES = [
-  { code: "+91", label: "IN +91" },
-  { code: "+1", label: "US +1" },
-  { code: "+44", label: "UK +44" },
-  { code: "+61", label: "AU +61" },
-  { code: "+971", label: "AE +971" },
-  { code: "+65", label: "SG +65" },
-  { code: "+852", label: "HK +852" },
-  { code: "+86", label: "CN +86" },
-  { code: "+81", label: "JP +81" },
-];
-
-const COUNTRIES = [
-  { code: "IN", name: "India" },
-  { code: "US", name: "United States" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "AU", name: "Australia" },
-  { code: "AE", name: "United Arab Emirates" },
-  { code: "SG", name: "Singapore" },
-  { code: "HK", name: "Hong Kong" },
-  { code: "CA", name: "Canada" },
-];
-
-const checkoutSchema = yup.object().shape({
-  firstName: yup.string().required("First name is required"),
-  lastName: yup.string().required("Last name is required"),
-  email: yup.string().email("Invalid email format").required("Email is required"),
-  countryCode: yup.string().default("+91"),
-  phone: yup
-    .string()
-    .required("Phone is required")
-    .matches(/^\d{6,15}$/, "Enter a valid phone number"),
-  line1: yup.string().required("Address is required"),
-  line2: yup.string().default(""),
-  city: yup.string().required("City is required"),
-  state: yup.string().required("State is required"),
-  postalCode: yup
-    .string()
-    .required("Postal code is required")
-    .matches(/^\d{4,10}$/, "Invalid postal code"),
-  country: yup.string().default("IN"),
-  billingLine1: yup.string(),
-  billingLine2: yup.string(),
-  billingCity: yup.string(),
-  billingState: yup.string(),
-  billingPostalCode: yup.string(),
-  billingCountry: yup.string().default("IN"),
-  sameAsShipping: yup.boolean().default(true),
-  orderNotes: yup.string().default(""),
-  paymentMethod: yup.string().oneOf(["cod", "online"]).default("cod"),
-});
-
-const FormField = ({ label, name, register, errors, required, placeholder, className, disabled, type, setValue }) => (
-  <div className="space-y-1">
-    <Label htmlFor={name} className="text-xs sm:text-sm font-medium">
-      {label} {required && <span className="text-red-500">*</span>}
-    </Label>
-    <Input
-      id={name}
-      type={type || "text"}
-      {...register(name)}
-      placeholder={placeholder || ""}
-      className={`text-sm ${errors[name] ? "border-red-400 ring-red-400" : ""} ${className || ""}`}
-      disabled={disabled}
-      onInput={setValue ? (e) => setValue(name, e.target.value, { shouldValidate: false }) : undefined}
-    />
-    {errors[name] && <p className="text-[11px] text-red-500">{errors[name].message}</p>}
-  </div>
-);
-
-const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOrderError, onViewOrders, onContinueShopping, className }) => {
+const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOrderError, onViewOrders, onContinueShopping, className, stepped = false, onDirtyChange }) => {
   const { toast } = useToast();
-  const [locating, setLocating] = useState(false);
-  const [distanceLoading, setDistanceLoading] = useState(false);
-  const [delivery, setDelivery] = useState(null);
-  const [distanceError, setDistanceError] = useState("");
-  const [coordinates, setCoordinates] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [orderResult, setOrderResult] = useState(null);
-
-  const autocompleteRef = useRef(null);
-  const addressInputRef = useRef(null);
-  const distanceTimerRef = useRef(null);
+  const [step, setStep] = useState(0);
 
   const defaultValues = useMemo(() => ({
     firstName: user?.name?.split(" ")[0] || "",
@@ -126,10 +53,15 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
     paymentMethod: "cod",
   }), [user]);
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, watch, trigger, formState: { errors, isDirty } } = useForm({
     resolver: yupResolver(checkoutSchema),
     defaultValues,
   });
+
+  // Report dirty state up to the modal so it can confirm before discarding.
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const sameAsShipping = watch("sameAsShipping");
   const paymentMethod = watch("paymentMethod");
@@ -157,101 +89,37 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
     });
   }, [setValue]);
 
-  const mapsKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  const mapsAvailable = mapsKey && mapsKey !== "YOUR_GOOGLE_MAPS_API_KEY_HERE";
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: mapsKey,
-    libraries,
-  });
-  const mapsReady = mapsAvailable && isLoaded;
+  const {
+    mapsReady, mapsAvailable,
+    locating, distanceLoading, distanceError, delivery, coordinates,
+    initAutocomplete, getLocationByGPS, clearLocation,
+  } = useCheckoutDelivery({ setValue });
+
+  const { data: wallet } = useWallet();
+  const walletBalance = wallet?.balance || 0;
+  const [useWalletCredit, setUseWalletCredit] = useState(false);
 
   const subtotal = cart?.totalPrice || 0;
   const total = subtotal + (delivery?.deliveryCharge || 0);
+  // Best-effort preview of the store credit applied (coupon is re-derived
+  // server-side, so this ignores it; the confirmation shows the exact amount).
+  const walletApplied = useWalletCredit ? Math.min(walletBalance, total) : 0;
+  const payableAfterWallet = Math.max(0, total - walletApplied);
 
-  const fetchDistance = useCallback(async (lat, lng) => {
-    setDistanceLoading(true);
-    setDistanceError("");
-    try {
-      const res = await deliveryApi.getDistance({ lat, lng });
-      setDelivery(res.data.data);
-    } catch (err) {
-      const msg = err.response?.data?.message || err.userMessage || "Could not calculate delivery distance";
-      console.error("[CheckoutForm] Distance fetch failed:", msg, err.response?.data || err.message);
-      setDistanceError(msg);
-    } finally {
-      setDistanceLoading(false);
-    }
-  }, []);
-
-  const debouncedFetchDistance = useCallback((lat, lng) => {
-    if (distanceTimerRef.current) clearTimeout(distanceTimerRef.current);
-    distanceTimerRef.current = setTimeout(() => fetchDistance(lat, lng), 600);
-  }, [fetchDistance]);
-
-  const onPlaceChanged = () => {
-    const place = autocompleteRef.current?.getPlace();
-    if (!place || !place.geometry) return;
-
-    const addr = place.address_components || [];
-    const get = (type) => addr.find((c) => c.types.includes(type))?.long_name || "";
-    const getShort = (type) => addr.find((c) => c.types.includes(type))?.short_name || "";
-
-    const newLine1 = `${get("street_number") ? get("street_number") + " " : ""}${get("route") || get("sublocality") || get("locality") || place.formatted_address || ""}`.trim();
-    const newCity = get("locality") || get("sublocality") || get("postal_town") || "";
-    const newState = get("administrative_area_level_1") || "";
-    const newPostalCode = get("postal_code") || "";
-    const newCountry = getShort("country") || "IN";
-    const lat = place.geometry.location.lat();
-    const lng = place.geometry.location.lng();
-
-    setValue("line1", newLine1);
-    setValue("city", newCity);
-    setValue("state", newState);
-    setValue("postalCode", newPostalCode);
-    setValue("country", newCountry);
-    setCoordinates({ lat, lng });
-    debouncedFetchDistance(lat, lng);
+  // Stepped-mode navigation (used by the checkout modal). Each step validates
+  // its own fields before advancing so the shopper can't skip a bad address.
+  const stepFields = {
+    0: ["firstName", "lastName", "email", "phone", "line1", "city", "state", "postalCode"],
+    1: ["paymentMethod"],
+    2: [],
   };
-
-  const initAutocomplete = (el) => {
-    if (!el || !window.google?.maps?.places) return;
-    if (addressInputRef.current === el) return;
-    addressInputRef.current = el;
-    autocompleteRef.current = new window.google.maps.places.Autocomplete(el, {
-      types: ["address"],
-      componentRestrictions: { country: "in" },
-      fields: ["address_components", "geometry", "formatted_address", "name"],
-    });
-    autocompleteRef.current.addListener("place_changed", onPlaceChanged);
+  const goNext = async () => {
+    syncAutofill();
+    const valid = await trigger(stepFields[step]);
+    if (!valid) return;
+    setStep((s) => Math.min(STEPS.length - 1, s + 1));
   };
-
-  const getLocationByGPS = () => {
-    if (!navigator.geolocation) {
-      toast({ title: "Geolocation not supported", variant: "destructive" });
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude: lat, longitude: lng } = pos.coords;
-        setCoordinates({ lat, lng });
-        try {
-          const res = await deliveryApi.getDistance({ lat, lng });
-          setDelivery(res.data.data);
-        } catch (err) {
-          const msg = err.response?.data?.message || err.userMessage || "Could not calculate delivery";
-          console.error("[CheckoutForm] GPS distance fetch failed:", msg, err.response?.data || err.message);
-          setDistanceError(msg);
-        }
-        setLocating(false);
-      },
-      () => {
-        setLocating(false);
-        toast({ title: "GPS failed. Enter your address manually.", variant: "destructive" });
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
+  const goBack = () => setStep((s) => Math.max(0, s - 1));
 
   const onSubmit = async (formData) => {
     if (!isLoggedIn || user?.role !== "customer") {
@@ -297,21 +165,40 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
       sameAsShipping: formData.sameAsShipping,
       orderNotes: formData.orderNotes,
       paymentMethod: formData.paymentMethod,
+      couponCode: getAppliedCode() || undefined,
+      useWallet: useWalletCredit,
     };
 
     try {
       const res = await placeOrder.mutateAsync(payload);
-      const orderData = res?.data?.data || res?.data || res;
-      const o = orderData?._id ? orderData : (res?.data?.data || {});
+      const data = res?.data?.data || res?.data || {};
+      // Grouped shape from split checkout: { orderGroup, orders: [...], totalPrice }.
+      // Fall back to a single-order shape for safety.
+      const orders = Array.isArray(data.orders) ? data.orders : data._id ? [data] : [];
+      const first = orders[0] || {};
+      const groupTotal =
+        data.totalPrice != null
+          ? data.totalPrice
+          : orders.reduce((s, o) => s + (o.totalPrice || 0), 0) || total;
       const result = {
-        id: o._id || "N/A",
-        name: o.customerName || name,
-        address: o.deliveryAddress?.fullAddress || `${formData.line1}, ${formData.city}`,
-        distance: o.deliveryDistance || 0,
-        time: o.estimatedDeliveryTime || "Calculating...",
-        charge: o.deliveryCharge || 0,
-        total: o.totalPrice || total,
+        id: data.orderGroup || first._id || "N/A",
+        firstOrderId: first._id || undefined,
+        name: first.customerName || name,
+        address: first.deliveryAddress?.fullAddress || `${formData.line1}, ${formData.city}`,
+        time: first.estimatedDeliveryTime || "Calculating...",
+        stores: orders.map((o) => ({
+          id: o._id,
+          name: o.vendor?.name || "Store",
+          delivery: o.deliveryCharge || 0,
+          distance: o.deliveryDistance || 0,
+          time: o.estimatedDeliveryTime || "",
+          total: o.totalPrice || 0,
+        })),
+        total: groupTotal,
+        walletUsed: data.walletUsed || 0,
+        amountPayable: data.amountPayable != null ? data.amountPayable : groupTotal,
       };
+      clearAppliedCode();
       setOrderResult(result);
       onOrderSuccess?.(result);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -325,39 +212,14 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
   // ──── CONFIRMATION VIEW ────
   if (orderResult) {
     return (
-      <div className={`animate-fade-in ${className || ""}`}>
-        <div className="bg-white border-2 border-green-200 rounded-xl p-6 sm:p-8 text-center shadow-lg max-w-lg mx-auto">
-          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle className="h-8 w-8 text-green-600" />
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-green-800 mb-1">Order Placed Successfully!</h2>
-          <p className="text-xs text-stone-400 mb-1">Order #{orderResult.id.toString().slice(-8).toUpperCase()}</p>
-          <p className="text-sm text-stone-500 mb-6">Thank you, {orderResult.name}!</p>
-
-          <div className="bg-stone-50 rounded-xl p-4 text-left space-y-2 text-sm border border-stone-200">
-            <h3 className="font-semibold text-stone-900 mb-2">Delivery Details</h3>
-            <p className="text-stone-600"><span className="font-medium text-stone-900">Address:</span> {orderResult.address}</p>
-            <p className="text-stone-600"><span className="font-medium text-stone-900">Distance from our store:</span> {orderResult.distance} km</p>
-            <p className="text-stone-600"><span className="font-medium text-stone-900">Estimated delivery time:</span> {orderResult.time}</p>
-            <p className="text-stone-600"><span className="font-medium text-stone-900">Delivery charge:</span> ₹{orderResult.charge}</p>
-            <Separator className="my-2" />
-            <p className="text-stone-600"><span className="font-medium text-stone-900">Total paid:</span> ₹{orderResult.total}</p>
-          </div>
-
-          <div className="mt-6 flex gap-3">
-            {onViewOrders ? (
-              <Button type="button" className="flex-1" onClick={onViewOrders}>View Orders</Button>
-            ) : (
-              <Button type="button" className="flex-1" onClick={() => window.location.href = "/orders"}>View Orders</Button>
-            )}
-            {onContinueShopping ? (
-              <Button type="button" variant="outline" className="flex-1" onClick={onContinueShopping}>Continue Shopping</Button>
-            ) : (
-              <Button type="button" variant="outline" className="flex-1" onClick={() => window.location.href = "/products"}>Continue Shopping</Button>
-            )}
-          </div>
-        </div>
-      </div>
+      <OrderConfirmation
+        orderResult={orderResult}
+        onViewOrders={onViewOrders}
+        onContinueShopping={onContinueShopping}
+        customerPhone={watch("phone")}
+        customerEmail={watch("email")}
+        className={className}
+      />
     );
   }
 
@@ -372,33 +234,63 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
       }}
       className={className || ""}>
       {(!isLoggedIn || user?.role !== "customer") && (
-        <div className="mb-4 rounded-xl border border-orange-200 bg-orange-50 p-3 sm:p-4">
-          <p className="text-xs sm:text-sm text-orange-800">Login to place your order.</p>
-          <Button className="mt-2 bg-orange-500 hover:bg-orange-600 text-white border-0 text-xs" asChild>
+        <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-primary">Login to place your order.</p>
+          <Button className="mt-2 bg-[#D2691E] hover:bg-[#A0522D] text-white border-0 text-xs" asChild>
             <Link to={`/login?redirect=${encodeURIComponent("/checkout")}`}>Login to Continue</Link>
           </Button>
         </div>
       )}
 
+      {/* ═══════ STEP INDICATOR (modal / stepped mode) ═══════ */}
+      {stepped && (
+        <div className="mb-5 flex items-center">
+          {STEPS.map((label, i) => (
+            <div key={label} className="flex items-center flex-1 last:flex-none">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                    i < step
+                      ? "bg-primary text-primary-foreground"
+                      : i === step
+                        ? "bg-primary/15 text-primary ring-2 ring-primary"
+                        : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {i < step ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                </span>
+                <span className={`text-xs font-semibold ${i === step ? "text-foreground" : "text-muted-foreground/70"} hidden sm:inline`}>
+                  {label}
+                </span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <span className={`mx-2 h-0.5 flex-1 rounded-full transition-colors ${i < step ? "bg-primary" : "bg-border"}`} />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(!stepped || step === 0) && (<>
       {/* ═══════ CONTACT INFO ═══════ */}
-      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 space-y-4 shadow-sm mb-4">
-        <h2 className="font-bold text-stone-900 flex items-center gap-2 text-sm sm:text-base">
-          <User className="h-4 w-4 text-orange-500" /> Contact Information
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-5 space-y-4 shadow-sm mb-4">
+        <h2 className="font-bold text-foreground flex items-center gap-2 text-sm sm:text-base">
+          <User className="h-4 w-4 text-primary" /> Contact Information
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormField label="First Name" name="firstName" register={register} errors={errors} required placeholder="John" setValue={setValue} />
-          <FormField label="Last Name" name="lastName" register={register} errors={errors} required placeholder="Doe" setValue={setValue} />
+          <RHFField label="First Name" name="firstName" register={register} errors={errors} required placeholder="John" setValue={setValue} />
+          <RHFField label="Last Name" name="lastName" register={register} errors={errors} required placeholder="Doe" setValue={setValue} />
           <div className="sm:col-span-2">
-            <FormField label="Email Address" name="email" register={register} errors={errors} required placeholder="john@example.com" type="email" setValue={setValue} />
+            <RHFField label="Email Address" name="email" register={register} errors={errors} required placeholder="john@example.com" type="email" setValue={setValue} />
           </div>
           <div className="sm:col-span-2">
             <Label htmlFor="phone" className="text-xs sm:text-sm font-medium">
-              Phone Number <span className="text-red-500">*</span>
+              Phone Number <span className="text-danger">*</span>
             </Label>
             <div className="flex gap-2">
               <select
                 {...register("countryCode")}
-                className="w-24 sm:w-28 border border-stone-300 rounded-lg px-2 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-24 sm:w-28 border border-input rounded-lg px-2 py-2.5 text-sm bg-surface focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {COUNTRY_CODES.map((c) => (
                   <option key={c.code} value={c.code}>{c.label}</option>
@@ -409,25 +301,25 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
                   id="phone"
                   {...register("phone")}
                   placeholder="9876543210"
-                  className={`text-sm ${errors.phone ? "border-red-400" : ""}`}
+                  className={`text-sm ${errors.phone ? "border-danger" : ""}`}
                 />
               </div>
             </div>
-            {errors.phone && <p className="text-[11px] text-red-500 mt-1">{errors.phone.message}</p>}
+            {errors.phone && <p className="text-[11px] text-danger mt-1">{errors.phone.message}</p>}
           </div>
         </div>
       </div>
 
       {/* ═══════ SHIPPING ADDRESS ═══════ */}
-      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 space-y-4 shadow-sm mb-4">
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-5 space-y-4 shadow-sm mb-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-bold text-stone-900 flex items-center gap-2 text-sm sm:text-base">
-            <MapPin className="h-4 w-4 text-orange-500" /> Shipping Address
+          <h2 className="font-bold text-foreground flex items-center gap-2 text-sm sm:text-base">
+            <MapPin className="h-4 w-4 text-primary" /> Shipping Address
           </h2>
           <Button
             type="button" variant="outline" size="sm"
             onClick={getLocationByGPS} disabled={locating}
-            className="border-orange-200 text-orange-600 hover:bg-orange-50 gap-1.5 text-xs shrink-0"
+            className="border-primary/30 text-primary hover:bg-primary/10 gap-1.5 text-xs shrink-0"
           >
             {locating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Crosshair className="h-3.5 w-3.5" />}
             {locating ? "Detecting..." : "Use GPS"}
@@ -436,14 +328,14 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
 
         <div className="space-y-1">
           <Label htmlFor="line1" className="text-xs sm:text-sm font-medium">
-            Address Line 1 <span className="text-red-500">*</span>
+            Address Line 1 <span className="text-danger">*</span>
           </Label>
           {mapsReady ? (
             <input
               id="line1"
               name="line1"
               placeholder="Start typing your address..."
-              className={`w-full border ${errors.line1 ? "border-red-400" : "border-stone-300"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500`}
+              className={`w-full border ${errors.line1 ? "border-danger" : "border-input"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary`}
               ref={(el) => {
                 register("line1").ref(el);
                 initAutocomplete(el);
@@ -451,8 +343,7 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
               onInput={(e) => setValue("line1", e.target.value, { shouldValidate: false })}
               onChange={(e) => {
                 register("line1").onChange(e);
-                setCoordinates(null);
-                setDelivery(null);
+                clearLocation();
               }}
               onBlur={register("line1").onBlur}
             />
@@ -461,25 +352,24 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
               id="line1"
               name="line1"
               placeholder="Enter your full address (street, area, landmark)"
-              className={`w-full border ${errors.line1 ? "border-red-400" : "border-stone-300"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500`}
+              className={`w-full border ${errors.line1 ? "border-danger" : "border-input"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary`}
               {...register("line1")}
               onInput={(e) => setValue("line1", e.target.value, { shouldValidate: false })}
               onChange={(e) => {
                 register("line1").onChange(e);
-                setCoordinates(null);
-                setDelivery(null);
+                clearLocation();
               }}
             />
           )}
-          {errors.line1 && <p className="text-[11px] text-red-500">{errors.line1.message}</p>}
+          {errors.line1 && <p className="text-[11px] text-danger">{errors.line1.message}</p>}
         </div>
 
-        <FormField label="Address Line 2 (optional)" name="line2" register={register} errors={errors} placeholder="Apartment, suite, etc." setValue={setValue} />
+        <RHFField label="Address Line 2 (optional)" name="line2" register={register} errors={errors} placeholder="Apartment, suite, etc." setValue={setValue} />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <FormField label="City" name="city" register={register} errors={errors} required placeholder="Mumbai" setValue={setValue} />
-          <FormField label="State" name="state" register={register} errors={errors} required placeholder="Maharashtra" setValue={setValue} />
-          <FormField label="Postal Code" name="postalCode" register={register} errors={errors} required placeholder="400001" setValue={setValue} />
+          <RHFField label="City" name="city" register={register} errors={errors} required placeholder="Mumbai" setValue={setValue} />
+          <RHFField label="State" name="state" register={register} errors={errors} required placeholder="Maharashtra" setValue={setValue} />
+          <RHFField label="Postal Code" name="postalCode" register={register} errors={errors} required placeholder="400001" setValue={setValue} />
         </div>
 
         <div className="space-y-1">
@@ -487,7 +377,7 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
           <select
             id="country"
             {...register("country")}
-            className="w-full border border-stone-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full border border-input rounded-lg px-3 py-2.5 text-sm bg-surface focus:outline-none focus:ring-2 focus:ring-primary"
           >
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>{c.name}</option>
@@ -497,39 +387,63 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
 
         {/* Live distance display */}
         {distanceLoading && (
-          <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 flex items-center gap-2 text-sm text-stone-500">
+          <div className="bg-muted border border-border rounded-lg p-3 flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Calculating delivery distance...
           </div>
         )}
         {distanceError && !distanceLoading && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs sm:text-sm text-amber-700">
-            {distanceError}
+          <div className="bg-warning-subtle border border-warning/30 rounded-lg p-3">
+            <p className="text-xs sm:text-sm text-warning">{distanceError}</p>
+            <div className="mt-2">
+              <CheckoutIssueButton
+                orderId={null}
+                userName={`${watch("firstName") || ""} ${watch("lastName") || ""}`.trim()}
+                customerPhone={watch("phone")}
+                customerEmail={watch("email")}
+                defaultIssueType="delivery"
+                defaultDescription={`Distance calculation error: ${distanceError}`}
+                buttonLabel="Report Delivery Issue"
+                buttonClassName="border-warning/40 text-warning hover:bg-warning-subtle gap-1.5 text-xs"
+              />
+            </div>
           </div>
         )}
         {delivery && !distanceLoading && (
           <>
             {delivery.isDeliverable ? (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm">
-                <span className="text-green-800 font-medium flex items-center gap-1">
+              <div className="bg-success-subtle border border-success/30 rounded-lg p-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm">
+                <span className="text-success font-medium flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5" /> {delivery.distanceKm} km from store
                 </span>
-                <span className="text-green-600 hidden sm:inline">|</span>
-                <span className="text-green-700 flex items-center gap-1">
+                <span className="text-success/70 hidden sm:inline">|</span>
+                <span className="text-success flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" /> ~{delivery.durationMinutes} min
                 </span>
-                <span className="text-green-600 hidden sm:inline">|</span>
-                <span className="text-green-700 flex items-center gap-1">
+                <span className="text-success/70 hidden sm:inline">|</span>
+                <span className="text-success flex items-center gap-1">
                   <Truck className="h-3.5 w-3.5" /> ₹{delivery.deliveryCharge} charge
                 </span>
               </div>
             ) : (
-              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-red-800 text-sm">Sorry, we do not currently deliver to your location.</p>
-                  <p className="text-xs text-red-600 mt-0.5">
-                    Your location is {delivery.distanceKm} km away (max 20 km delivery area).
-                  </p>
+              <div className="bg-danger-subtle border-2 border-danger/30 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-danger shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-danger text-sm">Sorry, we do not currently deliver to your location.</p>
+                    <p className="text-xs text-danger mt-0.5">
+                      Your location is {delivery.distanceKm} km away (max 20 km delivery area).
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-2">
+                  <CheckoutIssueButton
+                    orderId={null}
+                    userName={`${watch("firstName") || ""} ${watch("lastName") || ""}`.trim()}
+                    customerPhone={watch("phone")}
+                    customerEmail={watch("email")}
+                    defaultIssueType="delivery"
+                    defaultDescription={`My address is ${delivery.distanceKm} km from the store, beyond the delivery area. Can you help?`}
+                  />
                 </div>
               </div>
             )}
@@ -538,13 +452,13 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
       </div>
 
       {/* ═══════ BILLING ADDRESS ═══════ */}
-      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 space-y-4 shadow-sm mb-4">
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-5 space-y-4 shadow-sm mb-4">
         <div
           className="flex items-center justify-between cursor-pointer select-none"
           onClick={() => setShowBilling((p) => !p)}
         >
-          <h2 className="font-bold text-stone-900 text-sm sm:text-base">Billing Address</h2>
-          {showBilling ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
+          <h2 className="font-bold text-foreground text-sm sm:text-base">Billing Address</h2>
+          {showBilling ? <ChevronUp className="h-4 w-4 text-muted-foreground/70" /> : <ChevronDown className="h-4 w-4 text-muted-foreground/70" />}
         </div>
 
         <label className="flex items-center gap-2 cursor-pointer">
@@ -553,49 +467,51 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
             checked={sameAsShipping}
             {...register("sameAsShipping")}
             onChange={() => { setValue("sameAsShipping", !sameAsShipping); setShowBilling(true); }}
-            className="accent-orange-500 w-4 h-4"
+            className="accent-primary w-4 h-4"
           />
-          <span className="text-sm text-stone-600">Same as shipping address</span>
+          <span className="text-sm text-muted-foreground">Same as shipping address</span>
         </label>
 
         {showBilling && !sameAsShipping && (
-          <div className="space-y-3 pt-2 border-t border-stone-100">
-            <FormField label="Address Line 1" name="billingLine1" register={register} errors={errors} placeholder="Start typing..." setValue={setValue} />
-            <FormField label="Address Line 2 (optional)" name="billingLine2" register={register} errors={errors} placeholder="Apartment, suite" setValue={setValue} />
+          <div className="space-y-3 pt-2 border-t border-border">
+            <RHFField label="Address Line 1" name="billingLine1" register={register} errors={errors} placeholder="Start typing..." setValue={setValue} />
+            <RHFField label="Address Line 2 (optional)" name="billingLine2" register={register} errors={errors} placeholder="Apartment, suite" setValue={setValue} />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <FormField label="City" name="billingCity" register={register} errors={errors} placeholder="Mumbai" setValue={setValue} />
-              <FormField label="State" name="billingState" register={register} errors={errors} placeholder="Maharashtra" setValue={setValue} />
-              <FormField label="Postal Code" name="billingPostalCode" register={register} errors={errors} placeholder="400001" setValue={setValue} />
+              <RHFField label="City" name="billingCity" register={register} errors={errors} placeholder="Mumbai" setValue={setValue} />
+              <RHFField label="State" name="billingState" register={register} errors={errors} placeholder="Maharashtra" setValue={setValue} />
+              <RHFField label="Postal Code" name="billingPostalCode" register={register} errors={errors} placeholder="400001" setValue={setValue} />
             </div>
           </div>
         )}
       </div>
+      </>)}
 
+      {(!stepped || step === 1) && (<>
       {/* ═══════ ORDER NOTES ═══════ */}
-      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 shadow-sm mb-4">
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-5 shadow-sm mb-4">
         <div
           className="flex items-center justify-between cursor-pointer select-none"
           onClick={() => setShowNotes((p) => !p)}
         >
-          <h2 className="font-bold text-stone-900 flex items-center gap-2 text-sm sm:text-base">
-            <FileText className="h-4 w-4 text-orange-500" /> Order Notes
+          <h2 className="font-bold text-foreground flex items-center gap-2 text-sm sm:text-base">
+            <FileText className="h-4 w-4 text-primary" /> Order Notes
           </h2>
-          {showNotes ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
+          {showNotes ? <ChevronUp className="h-4 w-4 text-muted-foreground/70" /> : <ChevronDown className="h-4 w-4 text-muted-foreground/70" />}
         </div>
         {showNotes && (
           <textarea
             {...register("orderNotes")}
             placeholder="Delivery instructions, gate code, landmark, etc."
             rows={3}
-            className="w-full border border-stone-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none mt-3"
+            className="w-full border border-input rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none mt-3"
           />
         )}
       </div>
 
       {/* ═══════ PAYMENT METHOD ═══════ */}
-      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 space-y-3 shadow-sm mb-4">
-        <h2 className="font-bold text-stone-900 flex items-center gap-2 text-sm sm:text-base">
-          <CreditCard className="h-4 w-4 text-orange-500" /> Payment Method
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-5 space-y-3 shadow-sm mb-4">
+        <h2 className="font-bold text-foreground flex items-center gap-2 text-sm sm:text-base">
+          <CreditCard className="h-4 w-4 text-primary" /> Payment Method
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
@@ -608,69 +524,124 @@ const CheckoutForm = ({ cart, user, isLoggedIn, placeOrder, onOrderSuccess, onOr
               onClick={() => setValue("paymentMethod", opt.value)}
               className={`p-3 sm:p-4 rounded-xl border-2 text-left transition-all ${
                 paymentMethod === opt.value
-                  ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500"
-                  : "border-stone-200 bg-white hover:border-stone-300"
+                  ? "border-primary bg-primary/10 ring-1 ring-primary"
+                  : "border-border bg-surface hover:border-input"
               }`}
             >
               <div className="flex items-center gap-2">
-                <opt.icon className="h-5 w-5 text-orange-500" />
+                <opt.icon className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm font-bold text-stone-900">{opt.label}</p>
-                  <p className="text-[11px] text-stone-500">{opt.desc}</p>
+                  <p className="text-sm font-bold text-foreground">{opt.label}</p>
+                  <p className="text-[11px] text-muted-foreground">{opt.desc}</p>
                 </div>
               </div>
             </button>
           ))}
         </div>
       </div>
+      </>)}
 
-      {/* ═══════ ORDER SUMMARY ═══════ */}
-      <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 shadow-sm mb-4">
-        <h3 className="font-bold text-stone-900 text-sm sm:text-base mb-3">Order Summary</h3>
+      {(!stepped || step === 2) && (
+      /* ═══════ ORDER SUMMARY ═══════ */
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-5 shadow-sm mb-4">
+        <h3 className="font-bold text-foreground text-sm sm:text-base mb-3">Order Summary</h3>
         <div className="space-y-2 max-h-32 overflow-y-auto pr-1 mb-3">
           {cart?.items?.map((item) => (
             <div key={item._id || item.product?._id} className="flex justify-between text-xs sm:text-sm gap-2">
-              <span className="text-stone-600 truncate">
+              <span className="text-muted-foreground truncate">
                 {item.product?.name}{item.variant ? ` (${item.variant})` : ""} × {item.quantity}
               </span>
-              <span className="text-stone-900 font-medium shrink-0">{formatPrice(item.price * item.quantity)}</span>
+              <span className="text-foreground font-medium shrink-0">{formatPrice(item.price * item.quantity)}</span>
             </div>
           ))}
         </div>
         <Separator className="my-2" />
         <div className="space-y-1.5">
-          <div className="flex justify-between text-xs sm:text-sm text-stone-500">
+          <div className="flex justify-between text-xs sm:text-sm text-muted-foreground">
             <span>Subtotal</span>
             <span>{formatPrice(subtotal)}</span>
           </div>
-          <div className="flex justify-between text-xs sm:text-sm text-stone-500">
+          <div className="flex justify-between text-xs sm:text-sm text-muted-foreground">
             <span>Delivery {delivery?.distanceKm ? `(${delivery.distanceKm} km)` : ""}</span>
             <span>{delivery?.deliveryCharge ? formatPrice(delivery.deliveryCharge) : "—"}</span>
           </div>
           <Separator />
           <div className="flex justify-between font-bold text-sm sm:text-base">
-            <span className="text-stone-900">Total</span>
-            <span className="text-orange-600">{formatPrice(total)}</span>
+            <span className="text-foreground">Total</span>
+            <span className="text-primary">{formatPrice(total)}</span>
           </div>
+          {walletApplied > 0 && (
+            <>
+              <div className="flex justify-between text-xs sm:text-sm text-success font-medium">
+                <span>Wallet credit</span>
+                <span>−{formatPrice(walletApplied)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-sm sm:text-base">
+                <span className="text-foreground">To pay</span>
+                <span className="text-primary">{formatPrice(payableAfterWallet)}</span>
+              </div>
+            </>
+          )}
         </div>
-      </div>
 
-      <Button
-        type="submit"
-        size="lg"
-        disabled={placeOrder?.isPending || (delivery && !delivery.isDeliverable)}
-        className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0 shadow-lg shadow-orange-500/20 text-sm sm:text-base font-bold py-4 rounded-xl"
-      >
-        {placeOrder?.isPending ? (
-          <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Placing Order...</span>
-        ) : delivery && !delivery.isDeliverable ? (
-          "Address Outside Delivery Area"
-        ) : !coordinates && mapsAvailable ? (
-          "Select a Valid Address"
-        ) : (
-          `Place Order — ${formatPrice(total)}`
+        {walletBalance > 0 && (
+          <button
+            type="button"
+            onClick={() => setUseWalletCredit((v) => !v)}
+            className={`mt-3 w-full flex items-center justify-between gap-2 rounded-xl border-2 p-3 text-left transition-all ${
+              useWalletCredit ? "border-success bg-success-subtle" : "border-border hover:border-input"
+            }`}
+          >
+            <span className="flex items-center gap-2 text-sm">
+              <Wallet className={`h-4 w-4 ${useWalletCredit ? "text-success" : "text-muted-foreground/70"}`} />
+              <span className="font-medium text-foreground">Use wallet balance</span>
+              <span className="text-muted-foreground/70">({formatPrice(walletBalance)} available)</span>
+            </span>
+            <span className={`h-5 w-9 rounded-full transition-colors relative shrink-0 ${useWalletCredit ? "bg-success" : "bg-muted-foreground/30"}`}>
+              <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-surface transition-all ${useWalletCredit ? "left-4.5" : "left-0.5"}`} style={{ left: useWalletCredit ? "1.125rem" : "0.125rem" }} />
+            </span>
+          </button>
         )}
-      </Button>
+      </div>
+      )}
+
+      {/* ═══════ NAV / SUBMIT ═══════ */}
+      {stepped && step < STEPS.length - 1 ? (
+        <div className="flex items-center gap-3">
+          {step > 0 && (
+            <Button type="button" variant="outline" size="lg" onClick={goBack} className="shrink-0 gap-1.5">
+              <ChevronLeft className="h-4 w-4" /> Back
+            </Button>
+          )}
+          <Button type="button" variant="premium" size="lg" onClick={goNext} className="flex-1 gap-2">
+            Continue <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          {stepped && step > 0 && (
+            <Button type="button" variant="outline" size="lg" onClick={goBack} className="shrink-0 gap-1.5">
+              <ChevronLeft className="h-4 w-4" /> Back
+            </Button>
+          )}
+          <Button
+            type="submit"
+            size="lg"
+            disabled={placeOrder?.isPending || (delivery && !delivery.isDeliverable)}
+            className="flex-1 bg-gradient-to-r from-[#D2691E] to-[#E8A04F] hover:from-[#A0522D] hover:to-[#D2691E] text-white border-0 shadow-lg shadow-orange-500/20 text-sm sm:text-base font-bold py-4 rounded-xl"
+          >
+            {placeOrder?.isPending ? (
+              <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Placing Order...</span>
+            ) : delivery && !delivery.isDeliverable ? (
+              "Address Outside Delivery Area"
+            ) : !coordinates && mapsAvailable ? (
+              "Select a Valid Address"
+            ) : (
+              `Place Order — ${formatPrice(total)}`
+            )}
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

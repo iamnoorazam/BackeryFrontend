@@ -81,7 +81,7 @@ const FeedbackPage = () => {
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
             <div className="flex-1 text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/80 text-xs font-medium mb-5 backdrop-blur-sm">
-                <Sparkles className="h-3.5 w-3.5 text-orange-300" />
+                <Sparkles className="h-3.5 w-3.5 text-[#D2691E]" />
                 We value your opinion
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -90,14 +90,14 @@ const FeedbackPage = () => {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-amber-300">Experience</span>
               </h1>
               <p className="text-white/60 mt-4 max-w-lg text-base md:text-lg leading-relaxed">
-                Every review helps us serve you better. Tell us what you loved or what we can improve — your voice makes ApnaMart better.
+                Every review helps us serve you better. Tell us what you loved or what we can improve — your voice makes Saffron & Silk better.
               </p>
               <div className="flex flex-wrap items-center gap-5 mt-8">
                 <div className="flex items-center gap-1.5">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star
                       key={s}
-                      className={`h-6 w-6 ${s <= Math.round(avgRating) ? "fill-orange-400 text-orange-400" : "fill-white/10 text-white/20"}`}
+                      className={`h-6 w-6 ${s <= Math.round(avgRating) ? "fill-[#D2691E] text-[#D2691E]" : "fill-white/10 text-white/20"}`}
                     />
                   ))}
                 </div>
@@ -109,7 +109,7 @@ const FeedbackPage = () => {
             </div>
             <div className="shrink-0 text-center md:text-right">
               <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-orange-400/20 to-amber-400/10 border border-white/20 backdrop-blur-sm flex items-center justify-center">
-                <MessageSquare className="h-12 w-12 md:h-16 md:w-16 text-orange-300" />
+                <MessageSquare className="h-12 w-12 md:h-16 md:w-16 text-[#D2691E]" />
               </div>
             </div>
           </div>
@@ -120,7 +120,7 @@ const FeedbackPage = () => {
         {/* Rating Distribution Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
           {[
-            { label: "Total Reviews", value: totalReviews, icon: MessageSquare, color: "from-orange-500 to-amber-500" },
+            { label: "Total Reviews", value: totalReviews, icon: MessageSquare, color: "from-[#D2691E] to-[#E8A04F]" },
             { label: "Average Rating", value: avgRating, icon: Star, color: "from-amber-400 to-yellow-500" },
             { label: "5-Star Reviews", value: ratingDistribution[5] || 0, icon: Heart, color: "from-red-400 to-rose-500" },
             { label: "Rating Score", value: `${Math.round((avgRating / 5) * 100)}%`, icon: Smile, color: "from-green-400 to-emerald-500" },
@@ -206,8 +206,8 @@ const FeedbackPage = () => {
                               <Star
                                 className={`h-7 w-7 transition-all duration-200 ${
                                   star <= (hoverRating || rating)
-                                    ? "fill-orange-400 text-orange-400 drop-shadow-sm"
-                                    : "text-stone-300 hover:text-orange-300"
+                                    ? "fill-[#D2691E] text-[#D2691E] drop-shadow-sm"
+                                    : "text-stone-300 hover:text-[#D2691E]"
                                 }`}
                               />
                             </button>
@@ -231,11 +231,11 @@ const FeedbackPage = () => {
                             onChange={(e) => setComment(e.target.value)}
                             placeholder="Tell us about your experience... what did you love? what can we improve?"
                             rows={4}
-                            className="w-full border border-stone-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100 transition-all duration-200 resize-none bg-white/80 placeholder:text-stone-400"
+                            className="w-full border border-stone-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-orange-300 focus:ring-2 focus:ring-[#D2691E]/20 transition-all duration-200 resize-none bg-white/80 placeholder:text-stone-400"
                             maxLength={500}
                           />
                           <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                            <span className={`text-[10px] font-medium ${comment.length > 450 ? "text-orange-500" : "text-stone-400"}`}>
+                            <span className={`text-[10px] font-medium ${comment.length > 450 ? "text-[#D2691E]" : "text-stone-400"}`}>
                               {comment.length}/500
                             </span>
                           </div>
@@ -245,7 +245,7 @@ const FeedbackPage = () => {
                       <Button
                         type="submit"
                         disabled={submitting || createFeedback.isLoading}
-                        className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0 shadow-md shadow-orange-200/50 hover:shadow-lg hover:shadow-orange-300/40 transition-all duration-300 rounded-xl py-6"
+                        className="w-full bg-gradient-to-r from-[#D2691E] to-[#E8A04F] hover:from-[#A0522D] hover:to-[#D2691E] text-white border-0 shadow-md shadow-orange-200/50 hover:shadow-lg hover:shadow-orange-300/40 transition-all duration-300 rounded-xl py-6"
                       >
                         {submitting || createFeedback.isLoading ? (
                           <span className="flex items-center gap-2">
@@ -300,7 +300,7 @@ const FeedbackPage = () => {
                   >
                     <CardContent className="p-5 md:p-6">
                       <div className="flex items-start gap-4">
-                        <Avatar className="w-11 h-11 ring-2 ring-orange-100 shrink-0">
+                        <Avatar className="w-11 h-11 ring-2 ring-[#D2691E]/20 shrink-0">
                           <AvatarImage src={fb.user?.avatar} />
                           <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-500 text-white text-xs font-bold">
                             {fb.user?.name?.[0]?.toUpperCase() || "U"}
@@ -313,7 +313,7 @@ const FeedbackPage = () => {
                                 <p className="font-semibold text-stone-900 text-sm">
                                   {fb.user?.name || "Anonymous"}
                                 </p>
-                                <BadgeCheck className="h-4 w-4 text-orange-500" />
+                                <BadgeCheck className="h-4 w-4 text-[#D2691E]" />
                               </div>
                               <div className="flex items-center gap-2 mt-0.5">
                                 <div className="flex items-center gap-0.5">
@@ -322,7 +322,7 @@ const FeedbackPage = () => {
                                       key={s}
                                       className={`h-3.5 w-3.5 ${
                                         s <= fb.rating
-                                          ? "fill-orange-400 text-orange-400"
+                                          ? "fill-[#D2691E] text-[#D2691E]"
                                           : "text-stone-200"
                                       }`}
                                     />
@@ -338,7 +338,7 @@ const FeedbackPage = () => {
                                 </span>
                               </div>
                             </div>
-                            <Badge className="text-[10px] bg-orange-50 text-orange-600 border-orange-200 font-medium rounded-full px-3">
+                            <Badge className="text-[10px] bg-[#FFF8F0] text-[#D2691E] border-[#D2691E]/30 font-medium rounded-full px-3">
                               Verified
                             </Badge>
                           </div>
