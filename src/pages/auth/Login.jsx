@@ -45,10 +45,6 @@ const Login = () => {
 
     try {
       const user = await login({ email: form.email, password: form.password });
-      if (user.role === "owner") {
-        navigate("/owner/dashboard");
-        return;
-      }
       if (user.role === "admin") {
         navigate("/admin/dashboard");
         return;

@@ -1,13 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { dispatchApi } from "@/api/dispatch.api";
 
-// Owner/admin: kick off a rider search for an order.
 export const useRequestRider = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (orderId) => dispatchApi.requestRider(orderId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["owner-orders"] });
       qc.invalidateQueries({ queryKey: ["admin-orders"] });
     },
   });

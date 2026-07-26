@@ -45,7 +45,7 @@ const TABS = [
   { key: "Templates", icon: FileText },
 ];
 
-const ROLES = ["customer", "owner", "delivery", "staff", "admin"];
+const ROLES = ["customer", "delivery", "staff", "admin"];
 const statusTone = {
   draft: "secondary",
   scheduled: "outline",

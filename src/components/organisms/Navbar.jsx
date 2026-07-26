@@ -108,11 +108,9 @@ const Navbar = () => {
 
   const cartCount = cart?.items?.length || 0;
   const dashboardPath =
-    user?.role === "owner"
-      ? "/owner/dashboard"
-      : user?.role === "admin"
-        ? "/admin/dashboard"
-        : null;
+    user?.role === "admin"
+      ? "/admin/dashboard"
+      : null;
 
   const isActive = (path) =>
     location.pathname === path || (path !== "/" && location.pathname.startsWith(path));
@@ -296,7 +294,7 @@ const Navbar = () => {
                   <CartSheet cart={cart} cartCount={cartCount} />
                 </>
               )}
-              {(user.role === "owner" || user.role === "admin") && (
+              {user.role === "admin" && (
                 <button
                   onClick={() => navigate(dashboardPath)}
                   className="h-10 w-10 rounded-xl hover:bg-muted transition-colors flex items-center justify-center"

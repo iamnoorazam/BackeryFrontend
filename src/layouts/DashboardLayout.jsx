@@ -41,21 +41,6 @@ import { useNotifications, useMarkAllRead } from "@/hooks/useNotifications";
 import { formatDate, formatPrice } from "@/lib/utils";
 import ImagePreview from "@/components/atoms/ImagePreview";
 
-// Store owner — scoped to their own store only.
-const ownerLinks = [
-  { to: "/owner/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/owner/orders", label: "Orders", icon: ShoppingBag },
-  { to: "/owner/products", label: "Products", icon: Package },
-  { to: "/owner/inventory", label: "Inventory", icon: Boxes },
-  { to: "/owner/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/owner/coupons", label: "Coupons", icon: Tag },
-  { to: "/owner/staff", label: "Staff", icon: UserCog },
-  { to: "/owner/payouts", label: "Payouts", icon: Wallet },
-  { to: "/owner/chat", label: "Messages", icon: MessageSquare },
-  { to: "/merchant/settings", label: "Store Settings", icon: Store },
-  { to: "/merchant/onboarding", label: "KYC / Status", icon: History },
-];
-
 // Platform admin — marketplace-wide operations.
 const adminLinks = [
   { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -81,7 +66,6 @@ const adminLinks = [
   { to: "/admin/search-insights", label: "Search Insights", icon: Search },
   { to: "/admin/reports", label: "Reports & Export", icon: FileBarChart },
   { to: "/admin/jobs", label: "Background Jobs", icon: Cpu },
-  { to: "/owner/issues", label: "Issues", icon: AlertTriangle },
 ];
 
 const SidebarContent = ({ links, onNavigate }) => (
@@ -151,8 +135,8 @@ const NotificationDropdown = ({ notifications, unreadCount, onMarkAllRead, userR
           ) : (
             <div className="divide-y divide-stone-100">
               {recentNotifs.map((n) => {
-                const ordersPath = userRole === "admin" ? "/admin/orders" : "/owner/orders";
-                const linkable = n.data?.orderId && (userRole === "owner" || userRole === "admin");
+                const ordersPath = "/admin/orders";
+                const linkable = n.data?.orderId && userRole === "admin";
                 const Wrapper = linkable ? Link : "div";
                 return (
                   <Wrapper
@@ -234,7 +218,7 @@ const DashboardLayout = () => {
   const { data: notifications } = useNotifications();
   const markAllRead = useMarkAllRead();
 
-  const links = user?.role === "admin" ? adminLinks : ownerLinks;
+  const links = adminLinks;
 
   const unreadCount = (notifications || []).filter((n) => !n.isRead).length;
 

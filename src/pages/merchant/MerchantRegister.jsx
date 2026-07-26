@@ -187,7 +187,7 @@ const MerchantRegister = () => {
 
       <p className="text-center text-sm text-stone-500">
         Already a merchant?{" "}
-        <Link to="/owner/login" className="font-semibold text-[#D2691E] hover:underline">
+        <Link to="/admin/login" className="font-semibold text-[#D2691E] hover:underline">
           Sign in
         </Link>
       </p>

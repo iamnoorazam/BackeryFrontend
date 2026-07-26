@@ -23,7 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Spinner from "@/components/atoms/Spinner";
 import EmptyState from "@/components/atoms/EmptyState";
 import UserProfile360 from "@/components/organisms/UserProfile360";
-import { useAdminUsers, useBlockUser, useDeleteUser, useApproveOwner } from "@/hooks/useAdmin";
+import { useAdminUsers, useBlockUser, useDeleteUser } from "@/hooks/useAdmin";
 import { useToast } from "../../store/Toast";
 import { formatDate } from "@/lib/utils";
 
@@ -46,7 +46,6 @@ const AdminUsers = () => {
   const { data: users, isLoading } = useAdminUsers(roleFilter === "all" ? undefined : roleFilter);
   const blockUser = useBlockUser();
   const deleteUser = useDeleteUser();
-  const approveOwner = useApproveOwner();
   const { toast } = useToast();
 
   const act = (fn, successMsg) =>
@@ -73,7 +72,6 @@ const AdminUsers = () => {
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="customer">Customers</SelectItem>
-            <SelectItem value="owner">Owners</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -111,20 +109,10 @@ const AdminUsers = () => {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant={user.role === "owner" ? "default" : "secondary"}>
+                    <Badge variant="secondary">
                       {user.role}
                     </Badge>
                     {user.isBlocked && <Badge variant="destructive">Blocked</Badge>}
-                    {user.role === "owner" && !user.isApproved && (
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          act(approveOwner.mutate.bind(null, user._id), "Owner approved")
-                        }
-                      >
-                        Approve
-                      </Button>
-                    )}
                     <Button
                       size="sm"
                       variant="outline"
@@ -161,14 +149,16 @@ const AdminUsers = () => {
                     >
                       <CheckCircle className="h-4 w-4 text-green-600 mr-1" /> Unblock
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-8 w-8 text-destructive"
-                      onClick={() => act(deleteUser.mutate.bind(null, user._id), "User deleted")}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {user.role !== "admin" && (
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8 text-destructive"
+                        onClick={() => act(deleteUser.mutate.bind(null, user._id), "User deleted")}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                     {user.addresses?.length > 0 && (
                       <Button
                         size="sm"

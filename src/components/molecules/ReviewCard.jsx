@@ -25,7 +25,7 @@ const ReviewCard = ({ review, onDelete }) => {
             </div>
             <StarRating rating={review.rating} size={13} />
           </div>
-          {(isOwner || user?.role === "owner") && (
+          {isOwner && (
             <button
               onClick={() => onDelete(review._id)}
               className="p-1.5 rounded-lg text-stone-300 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"

@@ -23,8 +23,6 @@ export const useCreateProduct = () => {
     mutationFn: (data) => productApi.create(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
-      qc.invalidateQueries({ queryKey: ["owner-products"] });
-      qc.invalidateQueries({ queryKey: ["owner-dashboard"] });
     },
   });
 };
@@ -35,8 +33,6 @@ export const useUpdateProduct = () => {
     mutationFn: ({ id, data }) => productApi.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
-      qc.invalidateQueries({ queryKey: ["owner-products"] });
-      qc.invalidateQueries({ queryKey: ["owner-dashboard"] });
     },
   });
 };
@@ -47,8 +43,6 @@ export const useDeleteProduct = () => {
     mutationFn: (id) => productApi.delete(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
-      qc.invalidateQueries({ queryKey: ["owner-products"] });
-      qc.invalidateQueries({ queryKey: ["owner-dashboard"] });
     },
   });
 };
@@ -59,7 +53,6 @@ export const useSetAvailability = () => {
     mutationFn: ({ id, isAvailable }) => productApi.setAvailability(id, isAvailable),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
-      qc.invalidateQueries({ queryKey: ["owner-products"] });
     },
   });
 };

@@ -76,7 +76,6 @@ export const useUpdateOrderStatus = () => {
     mutationFn: ({ id, status }) => orderApi.updateStatus(id, status),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["all-orders"] });
-      qc.invalidateQueries({ queryKey: ["owner-orders"] });
     },
   });
 };
@@ -87,7 +86,6 @@ export const useGenerateOtp = () => {
     mutationFn: (id) => orderApi.generateOtp(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-orders"] });
-      qc.invalidateQueries({ queryKey: ["owner-orders"] });
     },
   });
 };
@@ -98,7 +96,6 @@ export const useVerifyOtp = () => {
     mutationFn: ({ id, otp }) => orderApi.verifyOtp(id, otp),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-orders"] });
-      qc.invalidateQueries({ queryKey: ["owner-orders"] });
     },
   });
 };

@@ -34,7 +34,6 @@ import Feedback from "@/pages/Feedback";
 
 import Login from "@/pages/auth/Login";
 import AdminLogin from "@/pages/auth/AdminLogin";
-import OwnerLogin from "@/pages/auth/OwnerLogin";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import VerifyOTP from "@/pages/auth/VerifyOTP";
@@ -47,18 +46,6 @@ import DeliveryDashboard from "@/pages/delivery/DeliveryDashboard";
 import DeliveryEarnings from "@/pages/delivery/DeliveryEarnings";
 import DeliveryPerformance from "@/pages/delivery/DeliveryPerformance";
 import DeliverySettings from "@/pages/delivery/DeliverySettings";
-import MerchantSettings from "@/pages/merchant/MerchantSettings";
-
-import OwnerDashboard from "@/pages/owner/OwnerDashboard";
-import OwnerProducts from "@/pages/owner/OwnerProducts";
-import OwnerInventory from "@/pages/owner/OwnerInventory";
-import OwnerAnalytics from "@/pages/owner/OwnerAnalytics";
-import OwnerCoupons from "@/pages/owner/OwnerCoupons";
-import OwnerStaff from "@/pages/owner/OwnerStaff";
-import OwnerPayouts from "@/pages/owner/OwnerPayouts";
-import OwnerChat from "@/pages/owner/OwnerChat";
-import OwnerOrders from "@/pages/owner/OwnerOrders";
-import OwnerIssues from "@/pages/owner/OwnerIssues";
 
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminOrders from "@/pages/admin/AdminOrders";
@@ -269,14 +256,6 @@ const AppRoutes = () => {
             }
           />
           <Route
-            path="/owner/login"
-            element={
-              <Page>
-                <OwnerLogin />
-              </Page>
-            }
-          />
-          <Route
             path="/register"
             element={
               <Page>
@@ -319,16 +298,16 @@ const AppRoutes = () => {
         </Route>
 
         {/* Merchant onboarding — full-screen, no dashboard chrome (owner/admin). */}
-        <Route
-          path="/merchant/onboarding"
-          element={
-            <ProtectedRoute roles={["owner", "admin"]}>
-              <Page>
-                <MerchantOnboarding />
-              </Page>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/merchant/onboarding"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <Page>
+                  <MerchantOnboarding />
+                </Page>
+              </ProtectedRoute>
+            }
+          />
 
         {/* Delivery-partner onboarding + dashboard — full-screen (delivery/admin). */}
         <Route
@@ -381,20 +360,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/delivery/chat"
-          element={
-            <ProtectedRoute roles={["delivery", "admin"]}>
-              <Page>
-                <div className="min-h-screen bg-stone-50 py-6 px-4">
-                  <div className="max-w-4xl mx-auto">
-                    <OwnerChat />
-                  </div>
-                </div>
-              </Page>
-            </ProtectedRoute>
-          }
-        />
+
 
         {/* Customer */}
         <Route element={<MainLayout />}>
@@ -426,97 +392,6 @@ const AppRoutes = () => {
                   <Wallet />
                 </Page>
               </ProtectedRoute>
-            }
-          />
-        </Route>
-
-        {/* Store owner — scoped to their own store. Admin inherits store access.
-            Staff (M8) act on their owner's store per their delegated permissions. */}
-        <Route
-          element={
-            <ProtectedRoute roles={["owner", "admin", "staff"]}>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route
-            path="/owner/dashboard"
-            element={
-              <Page>
-                <OwnerDashboard />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/products"
-            element={
-              <Page>
-                <OwnerProducts />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/orders"
-            element={
-              <Page>
-                <OwnerOrders />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/inventory"
-            element={
-              <Page>
-                <OwnerInventory />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/analytics"
-            element={
-              <Page>
-                <OwnerAnalytics />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/coupons"
-            element={
-              <Page>
-                <OwnerCoupons />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/staff"
-            element={
-              <Page>
-                <OwnerStaff />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/payouts"
-            element={
-              <Page>
-                <OwnerPayouts />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/chat"
-            element={
-              <Page>
-                <OwnerChat />
-              </Page>
-            }
-          />
-          <Route
-            path="/merchant/settings"
-            element={
-              <Page>
-                <MerchantSettings />
-              </Page>
             }
           />
         </Route>
@@ -710,14 +585,6 @@ const AppRoutes = () => {
             element={
               <Page>
                 <AdminReports />
-              </Page>
-            }
-          />
-          <Route
-            path="/owner/issues"
-            element={
-              <Page>
-                <OwnerIssues />
               </Page>
             }
           />

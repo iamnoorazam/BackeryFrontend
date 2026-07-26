@@ -11,7 +11,6 @@ export const adminApi = {
   getUserProfile: (id) => api.get(`/admin/users/${id}/profile`),
   exportUser: (id) => api.get(`/admin/users/${id}/export`, { responseType: "blob" }),
   gdprEraseUser: (id) => api.delete(`/admin/users/${id}/gdpr`),
-  approveOwner: (id) => api.put(`/admin/users/${id}/approve`),
   // Merchant onboarding review (Phase 3, M1)
   getVendors: (status) => api.get("/admin/vendors", { params: { status } }),
   approveVendor: (id) => api.put(`/admin/vendors/${id}/approve`),

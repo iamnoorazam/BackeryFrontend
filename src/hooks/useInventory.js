@@ -21,7 +21,6 @@ export const useAdjustStock = () => {
     onSuccess: (_res, vars) => {
       qc.invalidateQueries({ queryKey: ["inventory"] });
       qc.invalidateQueries({ queryKey: ["inventory-logs", vars.productId] });
-      qc.invalidateQueries({ queryKey: ["owner-products"] });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
   });

@@ -21,7 +21,7 @@ const BottomBar = () => {
 
   if (isLoggedIn) {
     const role = JSON.parse(localStorage.getItem("user") || "{}").role;
-    if (role === "owner" || role === "admin") return null;
+    if (role === "admin") return null;
   }
 
   return (

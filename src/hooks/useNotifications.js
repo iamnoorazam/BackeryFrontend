@@ -24,9 +24,8 @@ export const useNotifications = () => {
   return useQuery({
     queryKey: ["notifications"],
     queryFn: () => notificationApi.getAll().then((r) => r.data.data),
-    // Dashboard bell for both store owners (own order notifications) and platform
-    // admins (issue reports + any store they own).
-    enabled: !!user && (user.role === "owner" || user.role === "admin"),
+    // Dashboard bell for platform admins.
+    enabled: !!user && user.role === "admin",
     refetchInterval: 30000,
   });
 };

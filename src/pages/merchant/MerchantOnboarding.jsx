@@ -149,7 +149,7 @@ const MerchantOnboarding = () => {
           <div className="rounded-2xl bg-white border border-stone-200 p-6 text-center space-y-3">
             <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto" />
             <p className="text-stone-700 font-semibold">Your store is live on the marketplace.</p>
-            <Link to="/owner/dashboard">
+            <Link to="/admin/dashboard">
               <Button className="rounded-xl bg-gradient-to-r from-[#D2691E] to-[#E8A04F] text-white font-bold">
                 Go to dashboard
               </Button>

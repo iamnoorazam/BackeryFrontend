@@ -59,14 +59,6 @@ export const useGdprEraseUser = () => {
   });
 };
 
-export const useApproveOwner = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id) => adminApi.approveOwner(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-users"] }),
-  });
-};
-
 // Merchant onboarding review (Phase 3, M1)
 export const useAdminVendors = (status) =>
   useQuery({

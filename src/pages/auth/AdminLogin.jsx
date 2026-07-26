@@ -27,11 +27,10 @@ const AdminLogin = () => {
 
     try {
       const user = await adminLogin({ email: email.trim(), password });
-      if (user.role === "owner") navigate("/owner/dashboard");
-      else if (user.role === "admin") navigate("/admin/dashboard");
+      if (user.role === "admin") navigate("/admin/dashboard");
       else {
         logout();
-        setError("Access denied. Admin/Owner only.");
+        setError("Access denied. Admin only.");
       }
     } catch (err) {
       console.error("[AdminLogin]", err);
@@ -58,8 +57,8 @@ const AdminLogin = () => {
         >
           <Shield className="h-6 w-6 text-white" />
         </motion.div>
-        <h1 className="text-2xl font-bold text-foreground">Owner Login</h1>
-        <p className="text-sm text-muted-foreground mt-1">Sign in to manage the store</p>
+        <h1 className="text-2xl font-bold text-foreground">Admin Login</h1>
+        <p className="text-sm text-muted-foreground mt-1">Sign in to manage the platform</p>
       </div>
 
       {error && (
